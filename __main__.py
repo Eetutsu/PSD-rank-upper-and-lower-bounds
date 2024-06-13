@@ -4,10 +4,12 @@ import test_matrices
 
 for matrix in test_matrices.matrices.keys():
     lower_bound = lb.rank_based_lower_bound(test_matrices.matrices[matrix])
-    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using rank_based")
+    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using rank sqrt")
     lower_bound = lb.B4(test_matrices.matrices[matrix])
-    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} B4")
+    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using B4")
     upper_bound = ub.mindim_upper_bound(test_matrices.matrices[matrix])
-    print(f"PSD Rank Upper bound for {matrix}: {upper_bound}")
+    print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using shape")
+    upper_bound = ub.hadamard_sqrt_upper_bound(test_matrices.matrices[matrix])
+    print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using hadamard sqrt \n")
 
     
