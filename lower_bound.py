@@ -8,9 +8,9 @@ def rank_based_lower_bound(M):
     lower_bound = (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)
     return lower_bound
 
-def B4(M):
+def B4(M, is_D = False):
     """"Some upper and lower bounds on PSD-rank" https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10"""
-    #Differs from paper such thath instead of the matrix being column stochastic we use row stochastic matrices
+    #Differs from paper such that instead of the matrix being column stochastic we use row stochastic matrices
     #Check if row stochastic
     epsilon = 0.0001
     rowsum = 0
@@ -23,9 +23,17 @@ def B4(M):
     if rowsum != 0:
         return "Not a row stochastic matrix"
     #Calculate lower bound
-    else:
+    elif not is_D:
         sum = 0.0
         maxes = [max(row) for row in M]
         for i in maxes:
             sum += i
         return sum
+
+
+
+        
+        
+        
+
+
