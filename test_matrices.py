@@ -21,11 +21,9 @@ C = ([[1,0,0],[0,1/2,1/2],[1/2,0,1/2]])
 matrices.update({"C":C})
 D = ([[1,0,0],[0,1/2,1/2],[0,0,1]])
 matrices.update({"D":D})
-I = np.eye(10)
-matrices.update({"I":I})
+
 NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])
 matrices.update({"NP":NP})
 sqrt = ([[1,0,1],[0,1,4],[1,1,1]])
 matrices.update({"sqrt":sqrt})
-K_plus_plus = (np.kron(K_plus,K_plus))
-matrices.update({"K_plus_plus":K_plus_plus})
+

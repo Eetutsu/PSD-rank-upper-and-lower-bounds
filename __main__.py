@@ -9,7 +9,9 @@ for matrix in test_matrices.matrices.keys():
     print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using B4")
     upper_bound = ub.mindim_upper_bound(test_matrices.matrices[matrix])
     print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using shape")
+    upper_bound = ub.hadamard_sqrt_upper_bound(test_matrices.matrices[matrix],True)
+    print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using hadamard sqrt accurate")
     upper_bound = ub.hadamard_sqrt_upper_bound(test_matrices.matrices[matrix])
-    print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using hadamard sqrt \n")
+    print(f"PSD Rank Upper bound for {matrix}: {upper_bound} using hadamard sqrt stochastic \n")
 
     

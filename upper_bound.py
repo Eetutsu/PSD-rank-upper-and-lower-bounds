@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.linalg import matrix_rank
+from itertools import product
 
 
 def mindim_upper_bound(M):
@@ -10,10 +11,12 @@ def mindim_upper_bound(M):
 
 def hadamard_sqrt_upper_bound(M, is_accurate = False):
     """"POSITIVE SEMIDEFINITE RANK" https://arxiv.org/pdf/1407.4095 Corollary 5.3 Page 18"""
+    row = 0
+    col = 0
+    sqrt_ranks = []
+    #Stochastic method
+
     if not is_accurate:
-        row = 0
-        col = 0
-        sqrt_ranks = []
         for k in range(1000):
             m = np.array(M)
             for i in m:
@@ -29,4 +32,17 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
                 row += 1
             sqrt_ranks.append(matrix_rank(m))
             col = row = 0
-        return min(sqrt_ranks)
+    #Every combination
+    else:
+        M = np.array(M)
+        p, q = M.shape
+        possible_values = [np.array([np.sqrt(M[i, j]), -np.sqrt(M[i, j])]) for i in range(p) for j in range(q)]
+        all_combinations = product(*possible_values)
+        
+        hadamard_square_roots = []
+        for combination in all_combinations:
+            matrix = np.array(combination).reshape(p, q)
+            hadamard_square_roots.append(matrix)
+        sqrt_ranks = [np.linalg.matrix_rank(matrix) for matrix in hadamard_square_roots]
+    
+    return min(sqrt_ranks)
