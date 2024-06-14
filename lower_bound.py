@@ -29,7 +29,25 @@ def B4(M, is_D = False):
         for i in maxes:
             sum += i
         return sum
-
+    else:
+        M = np.array(M)
+        D = np.zeros((M.shape[0],M.shape[0]))
+        for i in range(M.shape[0]):
+            D[i,i] = np.random.randint(1,11)
+        P = np.dot(D,np.array(M))
+        sum = 0.0
+        for row in P:
+            index = 0
+            rowsum = 0
+            for j in row:
+                rowsum += j
+            for i in row:
+                row[index] = i/rowsum
+                index += 1
+        maxes = [max(row) for row in P]
+        for i in maxes:
+            sum += i
+        return sum
 
 
         
