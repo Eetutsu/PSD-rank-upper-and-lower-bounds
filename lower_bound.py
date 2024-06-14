@@ -4,6 +4,18 @@ from scipy.optimize import minimize
 
 
 
+
+def is_stochastic(M):
+    epsilon = 0.0001
+    rowsum = 0
+    for row in M:
+        for i in row:
+            rowsum += i
+        if 1-rowsum>=epsilon or rowsum>1:
+            return False
+        else: rowsum = 0
+    return True
+
 def rank_based_lower_bound(M):
     """"POSITIVE SEMIDEFINITE RANK" https://arxiv.org/pdf/1407.4095 Proposition 2.5 Page 4"""
     lower_bound = (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)
@@ -13,15 +25,8 @@ def B4(M, is_D = False):
     """"Some upper and lower bounds on PSD-rank" https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10"""
     #Differs from paper such that instead of the matrix being column stochastic we use row stochastic matrices
     #Check if row stochastic
-    epsilon = 0.0001
-    rowsum = 0
-    for row in M:
-        for i in row:
-            rowsum += i
-        if 1-rowsum>=epsilon or rowsum>1:
-            break
-        else: rowsum = 0
-    if rowsum != 0:
+    
+    if not is_stochastic(M):
         return "Not a row stochastic matrix"
     #Calculate lower bound
     elif not is_D:
@@ -52,6 +57,7 @@ def B4(M, is_D = False):
 
 
 def B3_func(M):
+    
     M = np.array(M)
     cols = M.shape[1]
     ii = 0
@@ -76,4 +82,7 @@ def B3_func(M):
     
 
 def B3(M): 
-    return 0.5*sum(B3_func(M))
+    if not is_stochastic(M):
+        return "Not a row stochastic matrix"
+    else:
+        return 0.5*sum(B3_func(M))
