@@ -1,5 +1,6 @@
 from numpy.linalg import matrix_rank
 import numpy as np
+from scipy.optimize import minimize
 
 
 
@@ -50,8 +51,29 @@ def B4(M, is_D = False):
         return sum
 
 
-        
-        
-        
+def B3_func(M):
+    M = np.array(M)
+    cols = M.shape[1]
+    ii = 0
+    kk = 0
+    jj = 0
+    fidelities = []
+    sum = 0
+    results = 0
+    while(ii<M.shape[0]):
+        while(jj<M.shape[0]):
+            while(kk<cols):
+                sum += np.sqrt(M[ii,kk]*M[jj,kk])
+                kk += 1
+            fidelities.append(sum**2)
+            sum = 0
+            kk = 0
+            jj += 1
+        jj = 0
+        ii += 1
+    return fidelities
 
+    
 
+def B3(M): 
+    return 0.5*sum(B3_func(M))

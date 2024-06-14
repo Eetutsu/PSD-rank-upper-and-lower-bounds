@@ -26,4 +26,7 @@ NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])
 matrices.update({"NP":NP})
 sqrt = ([[1,0,1],[0,1,4],[1,1,1]])
 matrices.update({"sqrt":sqrt})
-
+A_tensor = (np.kron(A,A))
+matrices.update({"A_tenosr":A_tensor})
+M = ([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])
+matrices.update({"M":M})

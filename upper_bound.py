@@ -17,7 +17,7 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
     #Stochastic method
 
     if not is_accurate:
-        for k in range(1000):
+        for k in range(10000):
             m = np.array(M)
             for i in m:
                 for j in i:
