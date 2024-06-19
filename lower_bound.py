@@ -2,8 +2,7 @@ from numpy.linalg import matrix_rank
 import numpy as np
 from scipy.optimize import minimize
 
-
-
+M = ([[2/3,1/6,1/6],[1/6,2/3,1/6],[1/6,1/6,2/3]])
 
 def is_stochastic(M):
     epsilon = 0.0001
@@ -24,18 +23,16 @@ def rank_based_lower_bound(M):
 def B4(M, is_D = False):
     """"Some upper and lower bounds on PSD-rank" https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10"""
     #Differs from paper such that instead of the matrix being column stochastic we use row stochastic matrices
-    #Check if row stochastic
     
-    if not is_stochastic(M):
+    if not is_stochastic(M):        #Check if row stochastic
         return "Not a row stochastic matrix"
-    #Calculate lower bound
-    elif not is_D:
+    elif not is_D:      #Calculate lower bound
         sum = 0.0
         maxes = [max(row) for row in M]
         for i in maxes:
             sum += i
         return sum
-    else:
+    else:       #Calculate lower bound
         M = np.array(M)
         D = np.zeros((M.shape[0],M.shape[0]))
         for i in range(M.shape[0]):
@@ -56,16 +53,10 @@ def B4(M, is_D = False):
         return sum
 
 
-def B3_func(M):
-    
+def Fidelities(M):
     M = np.array(M)
     cols = M.shape[1]
-    ii = 0
-    kk = 0
-    jj = 0
-    fidelities = []
-    sum = 0
-    results = 0
+    ii = 0; kk = 0; jj = 0; fidelities = []; sum = 0
     while(ii<M.shape[0]):
         while(jj<M.shape[0]):
             while(kk<cols):
@@ -79,10 +70,17 @@ def B3_func(M):
         ii += 1
     return fidelities
 
+
+
+
     
 
-def B3(M): 
+def B3(M):
     if not is_stochastic(M):
         return "Not a row stochastic matrix"
     else:
-        return 0.5*sum(B3_func(M))
+        B3_func(M)
+        
+
+
+B3(M)
