@@ -1,14 +1,15 @@
 import numpy as np
 
 K_plus = ([[1/2,1/2,0,0],[1/2,0,1/2,0],[1/2,0,0,1/2],[0,1/2,0,1/2],[0,0,1/2,1/2]])
-
+NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])
+A_2 = ([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,2,2,1,0,0],[0,1,2,2,1,0]])
 
 
 
 
 
 def grad_vec_min(M,q):
-    """calculates the gradiant vector"""
+    """calculates the gradient vector"""
     M = np.array(M)
     sum = 0
     gradient = []
@@ -38,28 +39,33 @@ def normalize(q_temp):
     """normalizes the entries of a vector"""
     q = []
     for elem in q_temp:
-        q_elem = elem/sum(q_temp)
+        q_elem = abs(elem/sum(q_temp))
         q.append(q_elem)
     return q
 
 
 def generate_q(M):
-    """Generates a probability distribution q"""
+    """Generates a probability distribution q with random values"""
     q = []
     for i in range(len(M)):
         q.append(np.random.randint(1,21))
     return normalize(q)
 
 
-def B3(M, lr=0.01):
+def B3_gradient(M, lr=0.01):
+    res = 0
     q = generate_q(M)
     gradient = grad_vec_min(M,q)
-    for i in range(1000):
+    for ii in range(100):
         for i in range(len(q)):
             q[i] = q[i]-lr*gradient[i]
-        normalize(q)
+            if q[i]<0: q[i] = 0
+            elif q[i]>1: q[i] = 1
+        lr = lr * 0.75
+        q = normalize(q)
         gradient = grad_vec_min(M,q)
-    return gradient
-
-
-B3(K_plus)
+    for i in range(len(M)):
+        for j in range(len(M)):
+            res = res + q[i]*q[j]*F(M[i],M[j])**2
+    res = 1 / res
+    return res
