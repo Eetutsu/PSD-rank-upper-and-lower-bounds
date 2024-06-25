@@ -1,10 +1,10 @@
 from numpy.linalg import matrix_rank
 import numpy as np
-from scipy.optimize import minimize
 
 M = ([[2/3,1/6,1/6],[1/6,2/3,1/6],[1/6,1/6,2/3]])
 
 def is_stochastic(M):
+    """Checks wheter a matrix is row stochastic or not"""
     epsilon = 0.0001
     rowsum = 0
     for row in M:
@@ -18,8 +18,7 @@ def is_stochastic(M):
 
 def rank_based_lower_bound(M):
     """"POSITIVE SEMIDEFINITE RANK" https://arxiv.org/pdf/1407.4095 Proposition 2.5 Page 4"""
-    lower_bound = (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)
-    return lower_bound
+    return (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)      #Calculate and return the lower bound
 
 
 def B4(M, is_D = False):
@@ -35,11 +34,11 @@ def B4(M, is_D = False):
             sum += i
         return sum
     else:       #Calculate lower bound
-        M = np.array(M)
+        M = np.array(M).T
         D = np.zeros((M.shape[0],M.shape[0]))
         for i in range(M.shape[0]):
             D[i,i] = np.random.randint(1,11)
-        P = np.dot(D,np.array(M))
+        P = np.dot(D,np.array(M)).T
         sum = 0.0
         for row in P:
             index = 0
@@ -49,7 +48,7 @@ def B4(M, is_D = False):
             for i in row:
                 row[index] = i/rowsum
                 index += 1
-        maxes = [max(row) for row in P]
+        maxes = [max(row) for row in P.T]
         for i in maxes:
             sum += i
         return sum
@@ -75,7 +74,7 @@ def grad_vec_min(M,q):
 
 
 def F(M_i,M_j):
-    """calculates the fideilty beteween the ith and jth column"""
+    """calculates the fideilty beteween the ith and jth row"""
     fid_sum = 0
     for k in range(len(M_i)):
         fid_sum += np.sqrt(M_i[k]*M_j[k])
@@ -84,7 +83,7 @@ def F(M_i,M_j):
 
 
 def normalize(q_temp):
-    """normalizes the entries of a vector"""
+    """normalizes the entries of a vector to sum up to 1"""
     q = []
     for elem in q_temp:
         q_elem = abs(elem/sum(q_temp))
@@ -100,22 +99,27 @@ def generate_q(M):
     return normalize(q)
 
 
-def B3_gradient(M, lr=0.001):
+def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     """"Some upper and lower bounds on PSD-rank" https://arxiv.org/pdf/1407.4308 Page 9 Definition 18"""
     if not is_stochastic(M): return "Not a row stochastic matrix"
     else:
-        res_log = []
-        for i in range(10): 
-            res = 0
-            q = generate_q(M)
-            gradient = grad_vec_min(M,q)
-            for ii in range(100):
+        res_log = []    #Log containing results
+        q_log = [0,0]   #Log containing q_i and q_(i+1) 
+        for i in range(100): 
+            res = 0     #Initialize result variable
+            q = generate_q(M)   #Generate a random probability distribution
+            q_log[0] = q    #Log q_i
+            gradient = grad_vec_min(M,q)    #Calculate the the gradient vector in the point q
+            for ii in range(max_iter):
                 for i in range(len(q)):
-                    q[i] = q[i]-lr*gradient[i]
-                    if q[i]<0: q[i] = 0
-                    #elif q[i]>1: q[i] = 1
-                lr = lr * 0.9
-                q = normalize(q)
+                    q[i] = q[i]-lr*gradient[i]  #Update the value of q according to the gradient
+                    if q[i]<0: q[i] = 0     #Keeps q in bounds
+                lr = lr * lr_scaler     #Update the step size (learning rate)
+                q = normalize(q)    #Normalize q so that its entries sum up to one
+                q_log[1] = q    #log q_(i+1)
+                q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
+                if(max(q_temp)<eps): break      #Check if change is so small that interating further is not sensible
+                q_log[0] = q_log[1]
                 gradient = grad_vec_min(M,q)
             for i in range(len(M)):
                 for j in range(len(M)):

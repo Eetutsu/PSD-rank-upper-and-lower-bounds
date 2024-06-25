@@ -1,6 +1,9 @@
 import numpy as np
 from numpy.linalg import matrix_rank
 from itertools import product
+A = ([[1,0,0],[1/2,1/2,0],[1/2,0,1/2]])
+
+A_tensor = (np.kron(A,A))
 
 
 def mindim_upper_bound(M):
@@ -14,9 +17,8 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
     row = 0
     col = 0
     sqrt_ranks = []
-    #Stochastic method
 
-    if not is_accurate:
+    if not is_accurate:     #Stochastic method
         for k in range(10000):
             m = np.array(M)
             for i in m:
@@ -32,13 +34,11 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
                 row += 1
             sqrt_ranks.append(matrix_rank(m))
             col = row = 0
-    #Every combination
-    else:
+    else:       #Every combination
         M = np.array(M)
         p, q = M.shape
         possible_values = [np.array([np.sqrt(M[i, j]), -np.sqrt(M[i, j])]) for i in range(p) for j in range(q)]
         all_combinations = product(*possible_values)
-        
         hadamard_square_roots = []
         for combination in all_combinations:
             matrix = np.array(combination).reshape(p, q)

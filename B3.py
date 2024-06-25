@@ -69,3 +69,17 @@ def B3_gradient(M, lr=0.01):
             res = res + q[i]*q[j]*F(M[i],M[j])**2
     res = 1 / res
     return res
+
+
+def newton_iter(M,q):
+    arr = []
+    for i in range(len(M)):
+        arr.append(F(M[i],M[i]))
+    return np.dot(np.linalg.inv(arr),grad_vec_min(M,q))
+
+
+def B3_newtonian(M):
+    q = generate_q(M)
+    q = q - newton_iter(M,q)
+
+B3_newtonian(K_plus)
