@@ -52,34 +52,40 @@ def generate_q(M):
     return normalize(q)
 
 
-def B3_gradient(M, lr=0.01):
-    res = 0
-    q = generate_q(M)
-    gradient = grad_vec_min(M,q)
-    for ii in range(100):
-        for i in range(len(q)):
-            q[i] = q[i]-lr*gradient[i]
-            if q[i]<0: q[i] = 0
-            elif q[i]>1: q[i] = 1
-        lr = lr * 0.75
-        q = normalize(q)
-        gradient = grad_vec_min(M,q)
-    for i in range(len(M)):
-        for j in range(len(M)):
-            res = res + q[i]*q[j]*F(M[i],M[j])**2
-    res = 1 / res
-    return res
-
 
 def newton_iter(M,q):
-    arr = []
-    for i in range(len(M)):
-        arr.append(F(M[i],M[i]))
-    return np.dot(np.linalg.inv(arr),grad_vec_min(M,q))
+    Hessian = np.zeros((len(q),len(q)))
+    for i in range(len(Hessian)):
+        j = 0
+        while(j<len(Hessian)):
+            if i == j:
+                Hessian[i][j] = 2*F(M[i],M[j])**2
+                j += 1
+            else:
+                Hessian[i][j] = 2*F(M[i],M[j])**2
+                j+=1
+    return np.dot(np.linalg.inv(Hessian),grad_vec_min(M,q))
 
 
-def B3_newtonian(M):
-    q = generate_q(M)
-    q = q - newton_iter(M,q)
+def B3_newton(M,lr=0.01):
+    res = 0
+    res_log = []
+    for iter in range (10):
+        q = generate_q(M)
+        for ii in range(10000):
+            newton = (newton_iter(M,q))
+            for i in range(len(q)):
+                q[i] = q[i] - lr*newton[i]
+                lr = lr *0.75
+                if q[i]<0: q[i] = 0
+            normalize(q)
+        for i in range(len(M)):
+            for j in range(len(M)):
+                res = res + q[i]*q[j]*F(M[i],M[j])**2
+        res = 1 / res
+        res_log.append(res)
+    return max(res_log)
+    
 
-B3_newtonian(K_plus)
+
+B3_newton(K_plus)

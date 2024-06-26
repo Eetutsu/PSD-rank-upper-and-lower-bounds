@@ -1,8 +1,16 @@
 import numpy as np
-
 #Matrices found in a paper written by Teiko Heinosaari, Oskari Kerppo and Leevi Leppäjärvi
 #Called "COMMUNICATION TASKS IN OPERATIONAL THEORIES" https://arxiv.org/pdf/2003.05264
 #Also some others from https://arxiv.org/pdf/1407.4308 and https://arxiv.org/pdf/1407.4095
+
+
+def normalize_mat(M):
+    for row in M:
+        summa = sum(row)
+        for i in range(len(row)):
+            row[i] = row[i] / summa
+    return M
+
 
 matrices = {}
 
@@ -22,13 +30,12 @@ C = ([[1,0,0],[0,1/2,1/2],[1/2,0,1/2]])
 matrices.update({"C":C})
 D = ([[1,0,0],[0,1/2,1/2],[0,0,1]])
 matrices.update({"D":D})
-#NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])
-#matrices.update({"NP":NP})
-#sqrt = ([[1,0,1],[0,1,4],[1,1,1]])
-#matrices.update({"sqrt":sqrt})
-A_tensor = (np.kron(A,A))
-matrices.update({"A_tensor":A_tensor})
-#M = ([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])
-#matrices.update({"M":M})
-#A_2 = ([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,2,2,1,0,0],[0,1,2,2,1,0]])
-#matrices.update({"A_2":A_2})
+NP = normalize_mat([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])  #Positive semidefinite rank theorem 5.6 page 19
+matrices.update({"NP":NP})
+sqrt = normalize_mat([[1,0,1],[0,1,4],[1,1,1]])     #Positive semidefinite rank definition 5.2. page 18
+matrices.update({"sqrt":sqrt})
+M = normalize_mat([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])    #Positive semidefinite rank 2.2 page 6
+matrices.update({"M":M})
+A_2 = normalize_mat([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,2,2,1,0,0],[0,1,2,2,1,0]])     #Some upper and lower bounds example 36 page 13
+matrices.update({"A_2":A_2})
+
