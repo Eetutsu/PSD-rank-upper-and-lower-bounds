@@ -17,6 +17,9 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
     row = 0
     col = 0
     sqrt_ranks = []
+    if len(M)>=6:
+        is_accurate = False
+        print("Matrix too big for all combinations, using stochastic method")
 
     if not is_accurate:     #Stochastic method
         for k in range(10000):

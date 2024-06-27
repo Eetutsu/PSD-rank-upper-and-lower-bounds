@@ -1,7 +1,16 @@
 from numpy.linalg import matrix_rank
 import numpy as np
+import random
 
-M = ([[2/3,1/6,1/6],[1/6,2/3,1/6],[1/6,1/6,2/3]])
+
+def normalize_mat(M):
+    """Normalizes the rows of a matrix"""
+    for row in M:
+        summa = sum(row)
+        for i in range(len(row)):
+            row[i] = row[i] / summa
+    return M
+
 
 def is_stochastic(M):
     """Checks wheter a matrix is row stochastic or not"""
@@ -34,24 +43,33 @@ def B4(M, is_D = False):
             sum += i
         return sum
     else:       #Calculate lower bound
+        arr = [-0.01,0.01]
+        sums = [0,0]
+        p_log = [0,0]
         M = np.array(M).T
         D = np.zeros((M.shape[0],M.shape[0]))
-        for i in range(M.shape[0]):
-            D[i,i] = np.random.randint(1,11)
-        P = np.dot(D,np.array(M)).T
-        sum = 0.0
-        for row in P:
-            index = 0
-            rowsum = 0
-            for j in row:
-                rowsum += j
-            for i in row:
-                row[index] = i/rowsum
-                index += 1
-        maxes = [max(row) for row in P.T]
-        for i in maxes:
-            sum += i
-        return sum
+        for iter1 in range(10):
+            for i in range(M.shape[0]):
+                D[i,i] = np.random.randint(1,11)
+            for iter2 in range(1000):
+                for i in range(len(D)):
+                    P = np.dot(D,np.array(M)).T
+                    p_log[0] = P 
+                    rand = random.choice(arr)
+                    D[i][i] = D[i][i] + rand
+                    P = np.dot(D,np.array(M)).T
+                    p_log[1] = P
+                    normalize_mat(p_log[0])
+                    normalize_mat(p_log[1])
+                    for A in p_log:
+                        maxes = [max(row) for row in A.T]
+                        sum = 0
+                        for k in maxes:
+                            sum += k
+                        sums.append(sum)
+                    if sums[-1]<sums[-2]: continue
+                    else: D[i][i] = D[i][i] - 2*rand
+        return max(sums)
     
 
 def grad_vec_min(M,q):

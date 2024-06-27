@@ -38,4 +38,5 @@ M = normalize_mat([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])    #Positive semide
 matrices.update({"M":M})
 A_2 = normalize_mat([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,2,2,1,0,0],[0,1,2,2,1,0]])     #Some upper and lower bounds example 36 page 13
 matrices.update({"A_2":A_2})
-
+A_tensor = np.kron(A,A)
+matrices.update({"A_tensor":A_tensor})
