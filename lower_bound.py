@@ -1,6 +1,5 @@
 from numpy.linalg import matrix_rank
 import numpy as np
-import random
 
 
 def normalize_mat(M):
@@ -25,52 +24,58 @@ def is_stochastic(M):
     return True
 
 
-def rank_based_lower_bound(M):
+def B1(M):
     """"POSITIVE SEMIDEFINITE RANK" https://arxiv.org/pdf/1407.4095 Proposition 2.5 Page 4"""
     return (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)      #Calculate and return the lower bound
 
 
-def B4(M, is_D = False):
+def B4(M):
     """"Some upper and lower bounds on PSD-rank" https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10"""
     #Differs from paper such that instead of the matrix being column stochastic we use row stochastic matrices
     
     if not is_stochastic(M):        #Check if row stochastic
         return "Not a row stochastic matrix"
-    elif not is_D:      #Calculate lower bound
+    else:      #Calculate lower bound
         sum = 0.0
         maxes = [max(row) for row in M]
         for i in maxes:
             sum += i
         return sum
-    else:       #Calculate lower bound
-        arr = [-0.01,0.01]
-        sums = [0,0]
-        p_log = [0,0]
-        M = np.array(M).T
-        D = np.zeros((M.shape[0],M.shape[0]))
-        for iter1 in range(10):
-            for i in range(M.shape[0]):
-                D[i,i] = np.random.randint(1,11)
-            for iter2 in range(1000):
-                for i in range(len(D)):
-                    P = np.dot(D,np.array(M)).T
-                    p_log[0] = P 
-                    rand = random.choice(arr)
-                    D[i][i] = D[i][i] + rand
-                    P = np.dot(D,np.array(M)).T
-                    p_log[1] = P
-                    normalize_mat(p_log[0])
-                    normalize_mat(p_log[1])
-                    for A in p_log:
-                        maxes = [max(row) for row in A.T]
-                        sum = 0
-                        for k in maxes:
-                            sum += k
-                        sums.append(sum)
-                    if sums[-1]<sums[-2]: continue
-                    else: D[i][i] = D[i][i] - 2*rand
-        return max(sums)
-    
+
+
+def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
+    """Some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10"""
+    sums = []
+    grad = []
+    p_log = [0,0]
+    M = np.array(M).T
+    D = np.zeros((M.shape[0],M.shape[0]))
+    for iter1 in range(10):
+        for i in range(M.shape[0]):
+            D[i,i] = np.random.randint(1,11)
+        for iter2 in range(1000):
+            for i in range(len(D)):
+                P = np.dot(D,np.array(M)).T
+                p_log[0] = P 
+                D[i][i] = D[i][i] + eps
+                P = np.dot(D,np.array(M)).T
+                p_log[1] = P
+                normalize_mat(p_log[0])
+                normalize_mat(p_log[1])
+                for A in p_log:
+                    maxes = [max(row) for row in A.T]
+                    sum = 0
+                    for k in maxes:
+                        sum += k
+                    sums.append(sum)
+                grad.append((sums[-2]-sums[-1])/eps)
+            if(abs(sums[-1]-sums[-2])<break_cond): break
+            for i in range(len(D)):
+                D[i][i] = D[i][i] + lr*grad[i]
+            lr = lr*0.75
+            grad.clear()
+    return max(sums)
+
 
 def grad_vec_min(M,q):
     """calculates the gradient vector"""
@@ -145,3 +150,43 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
             res = 1 / res
             res_log.append(res)
         return max(res_log)
+    
+
+def newton_iter(M,q):
+    Hessian = np.zeros((len(q),len(q)))
+    for i in range(len(Hessian)):
+        j = 0
+        while(j<len(Hessian)):
+            if i == j:
+                Hessian[i][j] = 2*F(M[i],M[j])**2
+                j += 1
+            else:
+                Hessian[i][j] = 2*F(M[i],M[j])**2
+                j+=1
+    return np.dot(np.linalg.inv(Hessian),grad_vec_min(M,q))
+
+
+def B3_newton(M,lr=0.01,eps = 0.000001):
+    q_log = [0,0]
+    res = 0
+    res_log = []
+    for iter in range (10):
+        q = generate_q(M)
+        q_log[0] = q
+        for ii in range(10000):
+            newton = (newton_iter(M,q))
+            for i in range(len(q)):
+                q[i] = q[i] - lr*newton[i]
+                lr = lr *0.75
+                if q[i]<0: q[i] = 0
+            q = normalize(q)
+            q_log[1] = q
+            q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))]) 
+            if(max(q_temp)<eps): break
+            q_log[0] = q_log[1]
+        for i in range(len(M)):
+            for j in range(len(M)):
+                res = res + q[i]*q[j]*F(M[i],M[j])**2
+        res = 1 / res
+        res_log.append(res)
+    return max(res_log)

@@ -38,6 +38,7 @@ def B4(M,lr = 0.01, eps = 0.01):
                 grad.append((sums[-2]-sums[-1])/eps)
             for i in range(len(D)):
                 D[i][i] = D[i][i] - lr*grad[i]
+            lr = lr*0.75
             grad.clear()
     return max(sums)
 

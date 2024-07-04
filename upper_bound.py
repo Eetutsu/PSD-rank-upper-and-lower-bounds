@@ -12,17 +12,19 @@ def mindim_upper_bound(M):
     return min(dims)
 
 
-def hadamard_sqrt_upper_bound(M, is_accurate = False):
+def hadamard_sqrt_upper_bound(M, is_accurate = True):
     """"POSITIVE SEMIDEFINITE RANK" https://arxiv.org/pdf/1407.4095 Corollary 5.3 Page 18"""
+    M = np.array(M)
+
     row = 0
     col = 0
     sqrt_ranks = []
-    if len(M)>=6:
+    if len(M)>=5 and len(M.T)>=5:
         is_accurate = False
         print("Matrix too big for all combinations, using stochastic method")
 
     if not is_accurate:     #Stochastic method
-        for k in range(10000):
+        for k in range(100000):
             m = np.array(M)
             for i in m:
                 for j in i:
@@ -38,7 +40,6 @@ def hadamard_sqrt_upper_bound(M, is_accurate = False):
             sqrt_ranks.append(matrix_rank(m))
             col = row = 0
     else:       #Every combination
-        M = np.array(M)
         p, q = M.shape
         possible_values = [np.array([np.sqrt(M[i, j]), -np.sqrt(M[i, j])]) for i in range(p) for j in range(q)]
         all_combinations = product(*possible_values)

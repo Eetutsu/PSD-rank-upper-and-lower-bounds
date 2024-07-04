@@ -30,11 +30,11 @@ def F(M_i,M_j):
 def B5(M):
     M = np.array(M)
     sum = 0
-    for i in range(len(M)):
-        q = generate_q(M)
+    q = generate_q(M)
+    for row in M:
         num = 0
-        for k in range(len(M.T)):
-            num += q[k]*(M[i][k])
+        for k in range(len(M)):
+            num += q[k]*(row[k])
         den = 0
         for s in range(len(M)):
             for t in range(len(M)):
