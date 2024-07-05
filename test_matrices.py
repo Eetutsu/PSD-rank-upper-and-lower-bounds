@@ -13,6 +13,7 @@ def normalize_mat(M):
 
 
 matrices = {}
+matrices_random = {}
 
 K_plus = ([[1/2,1/2,0,0],[1/2,0,1/2,0],[1/2,0,0,1/2],[0,1/2,0,1/2],[0,0,1/2,1/2]])
 matrices.update({"K_plus":K_plus})
@@ -40,16 +41,17 @@ A_2 = normalize_mat([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,
 matrices.update({"A_2":A_2})
 A_tensor = np.kron(A,A)
 matrices.update({"A_tensor":A_tensor})
-E_1 = [[1/2,1/2,0,0,0],[0,1/2,1/2,0,0],[0,0,1/2,1/2,0],[0,0,0,1/2,1/2],[1/3,1/3,1/3,0,0]]
-matrices.update({"Eetun oma 1":E_1})
-E_2 = [[1/5,1/5,1/5,1/5,1/5],[1/4,1/4,1/4,0,1/4],[1/3,0,1/3,0,1/3],[0,0,0,1/2,1/2],[0,1,0,0,0]]
-matrices.update({"Eetun oma 2":E_2})
-E_3 = [[1/2,1/2,0,0,0],[0,1/2,1/2,0,0],[0,0,1/2,1/2,0],[0,0,0,1/2,1/2]]
-matrices.update({"Eetun oma 3":E_3})
-E_4 = [[1,0,0],[1/2,0,1/2],[1/2,1/2,0]]
-matrices.update({"Eetun oma 4":E_4})
-E_5 = [[1,0,0],[1/2,0,1/2],[1/3,1/3,1/3],[2/3,0,1/3]]
-matrices.update({"Eetun oma 5":E_5})
-E_6 = [[1/6,2/6,3/6],[3/6,1/6,2/6],[2/6,3/6,1/6]]
-matrices.update({"Eetun oma 6":E_6})
+
+
+def random_matrices():
+    for i in range(10000):
+        rows = 3
+        cols = 4
+        mat = [[0 for _ in range(cols)] for _ in range(rows)]
+        for row in mat:
+            for j in range(len(row)):
+                row[j] = np.random.randint(0,21)
+        mat = normalize_mat(mat)
+        matrices_random.update({f"mat{i}":mat})
+        
 

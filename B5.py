@@ -27,20 +27,30 @@ def F(M_i,M_j):
     return fid_sum
 
 
-def B5(M):
+def B5(M, eps=0.01, lr =.75):
     M = np.array(M)
     sum = 0
+    sums = []
+    grad = []
     q = generate_q(M)
-    for row in M:
-        num = 0
-        for k in range(len(M)):
-            num += q[k]*(row[k])
-        den = 0
-        for s in range(len(M)):
-            for t in range(len(M)):
-                den += q[s]*q[t]*F(M[s],M[t])**2
-        den = np.sqrt(den)
-        sum += num/den
+    for iter in range(100):
+        for row in M:
+            num = 0
+            for k in range(min(len(row),len(q))):
+                q[k] = q[k] + eps
+                num += (q[k])*(row[k])
+            den = 0
+            for s in range(len(M)):
+                for t in range(len(M)):
+                    den += (q[s])*(q[t])*F(M[s],M[t])**2
+            den = np.sqrt(den)
+            sum += num/den
+            sums.append(sum)
+            if(len(sums)>1):
+                grad.append((sums[-2]-sums[-1])/eps)
+        for i in range(len(q)):
+            q[i] = q[i] - lr*grad[i]
+        
     return sum
                 
 for matrix in test_matrices.matrices.keys():
