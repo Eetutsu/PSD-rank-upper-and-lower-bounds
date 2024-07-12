@@ -102,6 +102,6 @@ def is_stochastic(M):
         else: rowsum = 0
     return True
 
-for matrix in test_matrices.matrices.keys():
-    lower_bound = B3_gradientD(test_matrices.matrices[matrix])
-    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using gradient method")
+#for matrix in test_matrices.matrices.keys():
+ #   lower_bound = B3_gradientD(test_matrices.matrices[matrix])
+  #  print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using gradient method")

@@ -2,6 +2,15 @@ import numpy as np
 import test_matrices
 
 
+def normalize_mat(M):
+    """Normalizes the rows of a matrix"""
+    for row in M:
+        summa = sum(row)
+        for i in range(len(row)):
+            row[i] = row[i] / summa
+    return M
+
+
 def generate_q(M):
     """Generates a probability distribution q with random values"""
     q = []
@@ -27,32 +36,48 @@ def F(M_i,M_j):
     return fid_sum
 
 
-def B5(M, eps=0.01, lr =.75):
+def B5(M, eps=0.001, lr =.001, lr_scaler = 0.75):
     M = np.array(M)
-    sum = 0
     sums = []
     grad = []
-    q = generate_q(M)
-    for iter in range(100):
-        for row in M:
-            num = 0
-            for k in range(min(len(row),len(q))):
+    P_k_log = []
+    q_log = [0,0]    
+
+    for i in range((M.shape[1])):
+        lr = 0.001
+        q = generate_q(M)
+        q_log[0] = q    
+        for iter in range(1000):
+            for k in range((len(q))):
+                P_k_log.append(calc_B5(M,q,i))
                 q[k] = q[k] + eps
-                num += (q[k])*(row[k])
-            den = 0
-            for s in range(len(M)):
-                for t in range(len(M)):
-                    den += (q[s])*(q[t])*F(M[s],M[t])**2
-            den = np.sqrt(den)
-            sum += num/den
-            sums.append(sum)
-            if(len(sums)>1):
-                grad.append((sums[-2]-sums[-1])/eps)
-        for i in range(len(q)):
-            q[i] = q[i] - lr*grad[i]
-        
-    return sum
-                
+                P_k_log.append(calc_B5(M,q,i))
+                grad.append((P_k_log[-2]-P_k_log[-1])/eps)
+            for x in range(len(q)):
+                q[x] = q[x] + lr*grad[x]
+            q = normalize(q)
+            q_log[1] = q   
+            q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
+            if(max(q_temp)<0.0001): break     
+            lr = lr * lr_scaler
+            grad.clear()
+        sums.append(max(P_k_log))
+    return sum(sums)
+
+
+def calc_B5(M,q,i):
+    summa1 = 0
+    for s in range(len(q)):
+        for t in range (len(q)):
+            summa1 = summa1 + q[s]*q[t]*F(M[s],M[t])**2
+    k = 0
+    summa2 = 0
+    while(k<len(q)):
+        summa2 = summa2 + np.dot(q[k],M[k][i])
+        k+=1
+    return summa2/np.sqrt(summa1)
+
+
 for matrix in test_matrices.matrices.keys():
     lower_bound = B5(test_matrices.matrices[matrix])
     print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using B5")

@@ -19,7 +19,7 @@ def hadamard_sqrt_upper_bound(M, is_accurate = True):
     row = 0
     col = 0
     sqrt_ranks = []
-    if len(M)>=5 and len(M.T)>=5:
+    if len(M)*len(M.T)>=20:
         is_accurate = False
         print("Matrix too big for all combinations, using stochastic method")
 
@@ -50,3 +50,6 @@ def hadamard_sqrt_upper_bound(M, is_accurate = True):
         sqrt_ranks = [np.linalg.matrix_rank(matrix) for matrix in hadamard_square_roots]
     
     return min(sqrt_ranks)
+
+
+u_bounds = [mindim_upper_bound,hadamard_sqrt_upper_bound]

@@ -13,7 +13,7 @@ def normalize_mat(M):
 
 
 matrices = {}
-matrices_random = {}
+
 
 K_plus = ([[1/2,1/2,0,0],[1/2,0,1/2,0],[1/2,0,0,1/2],[0,1/2,0,1/2],[0,0,1/2,1/2]])
 matrices.update({"K_plus":K_plus})
@@ -43,15 +43,12 @@ A_tensor = np.kron(A,A)
 matrices.update({"A_tensor":A_tensor})
 
 
-def random_matrices():
-    for i in range(10000):
-        rows = 3
-        cols = 4
-        mat = [[0 for _ in range(cols)] for _ in range(rows)]
-        for row in mat:
-            for j in range(len(row)):
-                row[j] = np.random.randint(0,21)
-        mat = normalize_mat(mat)
-        matrices_random.update({f"mat{i}":mat})
+def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
+    matrices = []
+    for i in range(n_matrices):
+        mat = np.random.randint(0, range_max, size=(rows, cols))
+        mat = mat / mat.sum(axis=1, keepdims=True)
+        matrices.append(mat)
+    return matrices
         
 
