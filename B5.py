@@ -58,7 +58,7 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.75):
             q = normalize(q)
             q_log[1] = q   
             q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-            if(max(q_temp)<0.0001): break     
+            if(max(q_temp)<0.00001): break     
             lr = lr * lr_scaler
             grad.clear()
         sums.append(max(P_k_log))
