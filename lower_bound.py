@@ -5,7 +5,18 @@ import math
 
 
 def normalize_mat(M):
-    """Normalizes the rows of a matrix"""
+    """Normalizes the rows of a matrix
+    
+    Parameters
+    ----------
+    M : list
+        the matrix we want to normalize
+
+    Returns
+    ----------
+    list
+        normalized matrix
+    """
     for row in M:
         summa = sum(row)
         for i in range(len(row)):
@@ -14,7 +25,18 @@ def normalize_mat(M):
 
 
 def is_stochastic(M):
-    """Checks wheter a matrix is row stochastic or not"""
+    """Checks wheter a matrix is row stochastic or not
+    
+    Parameters
+    ----------
+    M : list
+        the matrix we want to check if it is row stochastic
+    
+    Returns
+    ----------
+    boolean
+        returns True if it is row stochastic, if not, returns False
+    """
     rowsum = 0
     for row in M:
         for i in row:
@@ -36,7 +58,7 @@ def B1(M):
     Returns
     ----------
     float
-        the lower bound            
+        lower bound for PSD-rank           
     """
     return (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)      #Calculate and return the lower bound
 
@@ -69,16 +91,22 @@ def B4(M):
 
 def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
     """Lower bound found in: Some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10
-    :param M: the matrix we want to find a lower bound on PSD-rank for
-    :type M: 2D array
-    :param lr: learning rate used to update the gradient
-    :type lr: float
-    :param eps: used to approximate the derivate
-    :type eps: float
-    :param break_cond: used to determine wheter iterating further is senseible
-    :type break_cond: float
-    :returns: a lower bound for PSD-rank
-    :rtype: float
+
+    Parameters
+    ----------
+    M : list
+      the matrix we want to find a lower bound on PSD-rank for
+    lr : float
+      learning rate used to update the gradient (default 0.01)
+    eps : float
+      used to approximate the derivate (default 0.01)
+    break_cond : float
+      used to determine wheter iterating further is senseible (default 0.000001)
+    
+    Returns
+    ----------
+    float
+        lower bound for PSD-rank
     """
     sums = []
     grad = []
@@ -135,7 +163,7 @@ def grad_vec_min(M,q):
     
     Returns
     ----------
-    gradient : list
+    list
         the gradient vector
     """
     M = np.array(M)
@@ -181,12 +209,18 @@ def grad_vec_minD(M,q):
 
 def F(M_i,M_j):
     """calculates the fideilty beteween the ith and jth row as defined in: https://link.springer.com/article/10.1007/s10107-016-1052-0  Page 499
-    :param M_i: ith row of the matrix M
-    :type M_i: 1D array
-    :param M_j: jth row of the matrix M
-    :type M_j: 1D array
-    :returns: the fidelity between M_i and M_j
-    :rtype: float
+
+    Parameters
+    ----------
+    M_i : list
+      ith row of the matrix M
+    M_j : list
+      jth row of the matrix M
+    
+    Returns
+    ----------
+    float
+        the fidelity between M_i and M_j
     """
     
     fid_sum = 0
@@ -198,11 +232,18 @@ def F(M_i,M_j):
 
 def normalize(q_temp):
     """normalizes the entries of a vector to sum up to 1
-    :param q_temp: the vector we want to normalize
-    :type q_temp: 1D array
-    :returns: a matrix with entries that sum up to one
-    :rtype: 1D array
+
+    Parameters
+    ----------
+    q_temp : list
+      the vector we want to normalize
+    
+    Returns
+    ----------
+    list
+      a matrix with entries that sum up to one
     """
+
     q = []
     for elem in q_temp:
         q_elem = abs(elem/sum(q_temp))
@@ -217,6 +258,7 @@ def generate_q(M):
     :reutrns: probability distribution q
     :rtype: 1D array
     """
+
     q = []
     for i in range(len(M)):
         q.append(np.random.randint(1,21))
@@ -226,18 +268,22 @@ def generate_q(M):
 def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     """
     Calculates the lower bound of PSD-rank for the matrix M using B3(P) found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 18
-    :param M: The matrix that we find the lower boud for
-    :type M: 2-D array
-    :param lr: learning rate used in updating the gradient vector
-    :type lr = float
-    :param: max_iter: maximum iterations for updating the gradient vector (default is 0.001)
-    :type max_iter: int
-    :param lr_scaler: scales the learning rate after each iteration
-    :type lr_scaler: float
-    :param eps: stop iterating if change between the entries of the vectors q_i and q_(i+1) is less than eps
-    :type eps: float
-    :returns: a lower bound of PSD-rank for the matrix M
-    :rtype: float
+
+    M : list
+        The matrix that we find the lower bound for
+    lr : float
+      learning rate used in updating the gradient vector (default 0.001)
+    max_iter : int
+        maximum iterations for updating the gradient vector (default is 1000)
+    lr_scaler : float 
+        scales the learning rate after each iteration (default 0.75)
+    eps : float
+      stop iterating if difference between the entries of the vectors q_i and q_(i+1) is less than eps (default 0.00001)
+    
+    Returns
+    ----------
+    float
+      a lower bound of PSD-rank for the matrix M
     """
     if not is_stochastic(M): return "Not a row stochastic matrix"
     else:
@@ -361,4 +407,47 @@ def B3_newton(M,lr=0.01,eps = 0.000001):
     return max(res_log)
 
 
-l_bounds = [B1, B3_gradient,B3_gradientD,B3_newton, B4, B4D]
+
+def B5(M, eps=0.001, lr =.001, lr_scaler = 0.75):
+    M = np.array(M)
+    sums = []
+    grad = []
+    P_k_log = []
+    q_log = [0,0]    
+
+    for i in range((M.shape[1])):
+        lr = 0.001
+        q = generate_q(M)
+        q_log[0] = q    
+        for iter in range(1000):
+            for k in range((len(q))):
+                P_k_log.append(calc_B5(M,q,i))
+                q[k] = q[k] + eps
+                P_k_log.append(calc_B5(M,q,i))
+                grad.append((P_k_log[-2]-P_k_log[-1])/eps)
+            for x in range(len(q)):
+                q[x] = q[x] + lr*grad[x]
+            q = normalize(q)
+            q_log[1] = q   
+            q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
+            if(max(q_temp)<0.00001): break     
+            lr = lr * lr_scaler
+            grad.clear()
+        sums.append(max(P_k_log))
+    return sum(sums)
+
+
+def calc_B5(M,q,i):
+    summa1 = 0
+    for s in range(len(q)):
+        for t in range (len(q)):
+            summa1 = summa1 + q[s]*q[t]*F(M[s],M[t])**2
+    k = 0
+    summa2 = 0
+    while(k<len(q)):
+        summa2 = summa2 + np.dot(q[k],M[k][i])
+        k+=1
+    return summa2/np.sqrt(summa1)
+
+
+l_bounds = [B1, B3_gradient,B3_gradientD,B3_newton, B4, B4D, B5]

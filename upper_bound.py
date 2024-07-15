@@ -1,9 +1,7 @@
 import numpy as np
 from numpy.linalg import matrix_rank
 from itertools import product
-A = ([[1,0,0],[1/2,1/2,0],[1/2,0,1/2]])
 
-A_tensor = (np.kron(A,A))
 
 
 def mindim_upper_bound(M):

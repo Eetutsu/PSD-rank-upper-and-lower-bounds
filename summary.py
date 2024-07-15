@@ -1,7 +1,5 @@
 import lower_bound
 import upper_bound
-import B3
-import test_matrices
 import math
 
 

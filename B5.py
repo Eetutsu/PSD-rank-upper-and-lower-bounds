@@ -1,6 +1,6 @@
 import numpy as np
 import test_matrices
-
+import summary
 
 def normalize_mat(M):
     """Normalizes the rows of a matrix"""
@@ -78,6 +78,3 @@ def calc_B5(M,q,i):
     return summa2/np.sqrt(summa1)
 
 
-for matrix in test_matrices.matrices.keys():
-    lower_bound = B5(test_matrices.matrices[matrix])
-    print(f"PSD Rank Lower bound for {matrix}: {lower_bound} using B5")
