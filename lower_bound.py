@@ -48,7 +48,9 @@ def is_stochastic(M):
 
 
 def B1(M):
-    """Lower bound found in: POSITIVE SEMIDEFINITE RANK https://arxiv.org/pdf/1407.4095 Proposition 2.5 Page 4
+    """Calculates a lower bound on the PSD-rank for a given matrix
+    
+    Method found in: POSITIVE SEMIDEFINITE RANK https://arxiv.org/pdf/1407.4095 Proposition 2.5 Page 4
 
     Parameters    
     ----------    
@@ -64,7 +66,9 @@ def B1(M):
 
 
 def B4(M):
-    """Lower bound found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10
+    """Calculates a lower bound on the PSD-rank for a given row stochastic matrix
+    
+    Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10
 
     Parameters
     ----------
@@ -90,7 +94,9 @@ def B4(M):
 
 
 def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
-    """Lower bound found in: Some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10
+    """Calculates a lower bound on the PSD-rank for a given matrix using gradient descent approach and diagonal scaling.
+    
+    Method found in: some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10
 
     Parameters
     ----------
@@ -253,10 +259,16 @@ def normalize(q_temp):
 
 def generate_q(M):
     """Generates a probability distribution q with random values
-    :param M: determines the size of q
-    :type M: 2D array
-    :reutrns: probability distribution q
-    :rtype: 1D array
+
+    Parameters
+    ----------
+    M : list
+      determines the size of q
+    
+    Returns
+    ----------
+    list 
+        probability distribution q
     """
 
     q = []
@@ -267,7 +279,9 @@ def generate_q(M):
 
 def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     """
-    Calculates the lower bound of PSD-rank for the matrix M using B3(P) found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 18
+    Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent. 
+    
+    Method found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 18
 
     M : list
         The matrix that we find the lower bound for
@@ -288,7 +302,7 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     if not is_stochastic(M): return "Not a row stochastic matrix"
     else:
         #Initialize array that logs results
-        res_log = []
+        res_log = [] 
 
         #Initialize array that logs vectors q_i and q_(i+1)
         q_log = [0,0]    
@@ -332,7 +346,15 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     
 
 def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
-    """Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 20"""
+    """Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent and diagonal scaling. 
+
+    Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 20
+    
+    Parameters
+    ----------
+
+    """
+
     if not is_stochastic(M): return "Not a row stochastic matrix"
     else:
         res_log = []    #Log containing results
@@ -350,7 +372,7 @@ def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
                 q = normalize(q)    #Normalize q so that its entries sum up to one
                 q_log[1] = q    #log q_(i+1)
                 q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-                if(max(q_temp)<eps): break      #Check if change is so small that interating further is not sensible
+                if(max(q_temp)<eps): break      #Check if change is so small that iterating further is not sensible
                 q_log[0] = q_log[1]
                 gradient = grad_vec_minD(M,q)
             for i in range(len(M)):
@@ -362,48 +384,98 @@ def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
 
 
 def newton_iter(M,q):
+    """Newton's method iteration
+
+    Calculates the hessian matrix using the second derivate of B3 according to q. Takes the dot product between the inverse of the hessian matrix and the gradient
+    vector and returns it.
+
+    Parameters
+    ----------
+    M : list
+        used to calculate hessian matrix and gradient vector
+    q : list
+        used to calculate gradient vector
+    
+    Returns
+    ----------
+    list
+        if hessian matrix is invertible
+    int
+        if hessian matrix isn't invertible
+    """
+
     Hessian = np.zeros((len(q),len(q)))
     for i in range(len(Hessian)):
         j = 0
         while(j<len(Hessian)):
             if i == j:
-                Hessian[i][j] = 2*F(M[i],M[j])**2
+                Hessian[i][j] = 2*F(M[i],M[j])**2   #Second derivate when i = j
                 j += 1
             else:
-                Hessian[i][j] = 2*F(M[i],M[j])**2
+                Hessian[i][j] = 2*F(M[i],M[j])**2   #Second derivathe when i != j
                 j+=1
+    #Check if hessian matrix is invertible
     try:
-        ret = np.dot(np.linalg.inv(Hessian),grad_vec_min(M,q))
+        ret = np.dot(np.linalg.inv(Hessian),grad_vec_min(M,q))  
     except:
         ret = 0
     return ret
 
 
 def B3_newton(M,lr=0.01,eps = 0.000001):
+    """Calculates a lower bound on the PSD-rank for a row stochastic matrix using newton's method. 
+    
+    Method found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 18
+
+    Parameters
+    ----------
+    M : list
+        the matrix we want to find a PSD-rank lower bound for
+    lr : float
+        the learning rate used when iterating
+    eps : float
+        early stop criterion
+    
+    Returns
+    ----------
+    float 
+        the lower bound
+    int
+        if hessian matrix is not invertible
+    """
+    
     q_log = [0,0]
     res = 0
     res_log = []
     for iter in range (10):
+        #Generate a random probability distribution q
         q = generate_q(M)
         q_log[0] = q
         for ii in range(10000):
+            #Generate the "iterator"
             newton = (newton_iter(M,q))
+            #If hessian matrix is not invertible, return 0
             if isinstance(newton, int):
                 return 0
+            #update q
             for i in range(len(q)):
                 q[i] = q[i] - lr*newton[i]
                 lr = lr *0.75
                 if q[i]<0: q[i] = 0
+            #normalize q
             q = normalize(q)
             q_log[1] = q
+            #Check if early stop criterion is met
             q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))]) 
             if(max(q_temp)<eps): break
             q_log[0] = q_log[1]
+        #Calculate the lower bound
         for i in range(len(M)):
             for j in range(len(M)):
                 res = res + q[i]*q[j]*F(M[i],M[j])**2
         res = 1 / res
         res_log.append(res)
+    #return the best lower bound found
     return max(res_log)
 
 
