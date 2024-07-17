@@ -9,21 +9,23 @@ def solve(M, printed = 0, round_print = True):
     if printed == 0:
         print("Lower Bounds:")
     for func in lower_bound.l_bounds:
+        res = func(M)
         if printed == 0:
             if round_print:
-                print(f"{func.__name__}: {func(M) :.3f}")
+                print(f"{func.__name__}: {res :.3f}")
             else:
-                print(f"{func.__name__}: {func(M)}")
-        lbs.append(func(M))
+                print(f"{func.__name__}: {res}")
+        lbs.append(res)
     if printed == 0:
         print("Upper Bounds: ")
     for func in upper_bound.u_bounds:
+        res = func(M)
         if printed == 0:
             if round_print:
-                print(f"{func.__name__}: {func(M) :.3f}")
+                print(f"{func.__name__}: {res :.3f}")
             else:
-                print(f"{func.__name__}: {func(M)}")
-        ubs.append(func(M))
+                print(f"{func.__name__}: {res}")
+        ubs.append(res)
     if(math.ceil(max(lbs)) == min(ubs)):
         print(f"PSD-rank is {min(ubs)} for matrix:")
         if round_print:

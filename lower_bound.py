@@ -93,7 +93,7 @@ def B4(M):
         return sum
 
 
-def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
+def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001 ,lr_scaler = 0.95):
     """Calculates a lower bound on the PSD-rank for a given matrix using gradient descent approach and diagonal scaling.
     
     Method found in: some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10
@@ -108,6 +108,8 @@ def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
       used to approximate the derivate (default 0.01)
     break_cond : float
       used to determine wheter iterating further is senseible (default 0.000001)
+    lr_scaler : float
+        scales the learning rate after each iteration
     
     Returns
     ----------
@@ -151,7 +153,7 @@ def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001):
             #Update the diagonals of the matrix D according to the gradient vector
             for i in range(len(D)):
                 D[i][i] = D[i][i] + lr*grad[i]
-            lr = lr*0.75
+            lr = lr*lr_scaler
             grad.clear()
     #return the lower bound
     return max(sums)
@@ -277,7 +279,7 @@ def generate_q(M):
     return normalize(q)
 
 
-def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
+def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.95, eps = 0.00001):
     """
     Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent. 
     
@@ -290,7 +292,7 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
     max_iter : int
         maximum iterations for updating the gradient vector (default is 1000)
     lr_scaler : float 
-        scales the learning rate after each iteration (default 0.75)
+        scales the learning rate after each iteration (default 0.95)
     eps : float
       stop iterating if difference between the entries of the vectors q_i and q_(i+1) is less than eps (default 0.00001)
     
@@ -345,7 +347,7 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
         return max(res_log)
     
 
-def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.75, eps = 0.00001):
+def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.95, eps = 0.00001):
     """Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent and diagonal scaling. 
 
     Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 20
@@ -422,7 +424,7 @@ def newton_iter(M,q):
     return ret
 
 
-def B3_newton(M,lr=0.01,eps = 0.000001):
+def B3_newton(M,lr=0.01,eps = 0.000001, lr_scaler = 0.95):
     """Calculates a lower bound on the PSD-rank for a row stochastic matrix using newton's method. 
     
     Method found in: Some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 18
@@ -430,12 +432,13 @@ def B3_newton(M,lr=0.01,eps = 0.000001):
     Parameters
     ----------
     M : list
-        the matrix we want to find a PSD-rank lower bound for
+        the matrix we want to find a PSD-rank lower bound for 
     lr : float
-        the learning rate used when iterating
+        the learning rate used when iterating (default 0.01)
     eps : float
-        early stop criterion
-    
+        early stop criterion (default 0.000001)
+    lr_scaler : float
+        scales the learning rate after each iteration (default 0.95)
     Returns
     ----------
     float 
@@ -460,7 +463,7 @@ def B3_newton(M,lr=0.01,eps = 0.000001):
             #update q
             for i in range(len(q)):
                 q[i] = q[i] - lr*newton[i]
-                lr = lr *0.75
+                lr = lr * lr_scaler
                 if q[i]<0: q[i] = 0
             #normalize q
             q = normalize(q)
@@ -480,7 +483,27 @@ def B3_newton(M,lr=0.01,eps = 0.000001):
 
 
 
-def B5(M, eps=0.001, lr =.001, lr_scaler = 0.75):
+def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
+    """Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent.
+
+    lower bound calculated using the method found in: https://arxiv.org/pdf/1407.4308 Page 10 Definition 28
+
+    Parameters
+    ----------
+    M : list
+        the matrix we want to find a PSD-rank lower bound for 
+    eps : float
+        used to approximate the derivate (default 0.001)
+    lr : float
+        the learning rate used when iterating (default 0.01)
+    lr_scaler : float
+        scales the learning rate after each iteration (default 0.95)
+    
+    Returns
+    ----------
+    float
+        the lower bound
+    """
     M = np.array(M)
     sums = []
     grad = []
