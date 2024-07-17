@@ -65,7 +65,7 @@ def B1(M):
     return (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)      #Calculate and return the lower bound
 
 
-def B4(M):
+def B4(M, is_D = False):
     """Calculates a lower bound on the PSD-rank for a given row stochastic matrix
     
     Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10
@@ -83,8 +83,8 @@ def B4(M):
         the lower bound
     """
     
-    if not is_stochastic(M):        #Check if row stochastic
-        return "Not a row stochastic matrix"
+    if not is_stochastic(M) and not is_D:        #Check if row stochastic
+        return 0
     else:      #Calculate lower bound
         sum = 0.0
         maxes = [max(row) for row in M]
@@ -137,17 +137,13 @@ def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001 ,lr_scaler = 0.95):
                 P = np.dot(D,np.array(M)).T
                 p_log[1] = P
                 #normalize both matrices
-                normalize_mat(p_log[0])
-                normalize_mat(p_log[1])
+                p_log[0] = normalize_mat(p_log[0])
+                p_log[1] = normalize_mat(p_log[1])
                 #Calculate B4 for both matrices P_0 and P_1
                 for A in p_log:
-                    maxes = [max(row) for row in A.T]
-                    sum = 0
-                    for k in maxes:
-                        sum += k
-                    sums.append(sum)
+                    sums.append(B4(A.T,is_D=True))
                 #Approximate the derivate and add it to the gradient vector
-                grad.append((sums[-2]-sums[-1])/eps)
+                grad.append((sums[-1]-sums[-2])/eps)
             #check if we want to iterate further
             if(abs(sums[-1]-sums[-2])<break_cond): break
             #Update the diagonals of the matrix D according to the gradient vector
@@ -191,13 +187,10 @@ def grad_vec_min(M,q):
     return gradient
 
 
-def grad_vec_minD(M,q):
+def grad_vec_minD(M,q,D):
     """calculates the gradient vector"""
     M = np.array(M)
     sum = 0
-    D = np.zeros((M.shape[1],M.shape[1]))
-    for i in range(M.shape[1]):
-        D[i,i] = np.random.randint(1,11)
     gradient = []
     for i in range(len(q)):
         for j in range(len(q)):
@@ -301,7 +294,7 @@ def B3_gradient(M, lr=0.001, max_iter = 1000, lr_scaler = 0.95, eps = 0.00001):
     float
       a lower bound of PSD-rank for the matrix M
     """
-    if not is_stochastic(M): return "Not a row stochastic matrix"
+    if not is_stochastic(M): return 0
     else:
         #Initialize array that logs results
         res_log = [] 
@@ -356,33 +349,36 @@ def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.95, eps = 0.00001):
     ----------
 
     """
+    M = np.array(M)
 
-    if not is_stochastic(M): return "Not a row stochastic matrix"
-    else:
-        res_log = []    #Log containing results
-        q_log = [0,0]   #Log containing q_i and q_(i+1) 
-        for i in range(100): 
-            res = 0     #Initialize result variable
-            q = generate_q(M)   #Generate a random probability distribution
-            q_log[0] = q    #Log q_i
-            gradient = grad_vec_minD(M,q)    #Calculate the the gradient vector in the point q
-            for ii in range(max_iter):
-                for i in range(len(q)):
-                    q[i] = q[i]-lr*gradient[i]  #Update the value of q according to the gradient
-                    if q[i]<0: q[i] = 0     #Keeps q in bounds
-                lr = lr * lr_scaler     #Update the step size (learning rate)
-                q = normalize(q)    #Normalize q so that its entries sum up to one
-                q_log[1] = q    #log q_(i+1)
-                q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-                if(max(q_temp)<eps): break      #Check if change is so small that iterating further is not sensible
-                q_log[0] = q_log[1]
-                gradient = grad_vec_minD(M,q)
-            for i in range(len(M)):
-                for j in range(len(M)):
-                    res = res + q[i]*q[j]*F(M[i],M[j])**2
-            res = 1 / res
-            res_log.append(res)
-        return max(res_log)
+    res_log = []    #Log containing results
+    q_log = [0,0]   #Log containing q_i and q_(i+1) 
+    for i in range(100): 
+        D = np.zeros((M.shape[0],M.shape[0]))
+        for i in range(M.shape[0]):
+            D[i,i] = np.random.randint(1,11)
+        res = 0     #Initialize result variable
+        q = generate_q(M)   #Generate a random probability distribution
+        q_log[0] = q    #Log q_i
+        gradient = grad_vec_minD(M,q,D)    #Calculate the the gradient vector in the point q
+        for ii in range(max_iter):
+            for i in range(len(q)):
+                q[i] = q[i]-lr*gradient[i]  #Update the value of q according to the gradient
+                D[i][i] = D[i][i] - lr*gradient[i]
+                if q[i]<0: q[i] = 0     #Keeps q in bounds
+            lr = lr * lr_scaler     #Update the step size (learning rate)
+            q = normalize(q)    #Normalize q so that its entries sum up to one
+            q_log[1] = q    #log q_(i+1)
+            q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
+            if(max(q_temp)<eps): break      #Check if change is so small that iterating further is not sensible
+            q_log[0] = q_log[1]
+            gradient = grad_vec_minD(M,q,D)
+        for i in range(len(M)):
+            for j in range(len(M)):
+                res = res + q[i]*q[j]*F(M[i],M[j])**2
+        res = 1 / res
+        res_log.append(res)
+    return max(res_log)
 
 
 def newton_iter(M,q):
@@ -446,11 +442,13 @@ def B3_newton(M,lr=0.01,eps = 0.000001, lr_scaler = 0.95):
     int
         if hessian matrix is not invertible
     """
-    
+
+
+    if not is_stochastic(M): return 0
     q_log = [0,0]
     res = 0
     res_log = []
-    for iter in range (10):
+    for iter in range (100):
         #Generate a random probability distribution q
         q = generate_q(M)
         q_log[0] = q
@@ -504,6 +502,8 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     float
         the lower bound
     """
+
+    if not is_stochastic(M): return 0
     M = np.array(M)
     sums = []
     grad = []
@@ -519,7 +519,7 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
                 P_k_log.append(calc_B5(M,q,i))
                 q[k] = q[k] + eps
                 P_k_log.append(calc_B5(M,q,i))
-                grad.append((P_k_log[-2]-P_k_log[-1])/eps)
+                grad.append((P_k_log[-1]-P_k_log[-2])/eps)
             for x in range(len(q)):
                 q[x] = q[x] + lr*grad[x]
             q = normalize(q)
@@ -545,4 +545,4 @@ def calc_B5(M,q,i):
     return summa2/np.sqrt(summa1)
 
 
-l_bounds = [B1, B3_gradient,B3_gradientD,B3_newton, B4, B4D, B5]
+l_bounds = [B1, B3_gradient,B3_newton, B4, B4D, B5]
