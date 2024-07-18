@@ -1,5 +1,5 @@
 import numpy as np
-import summary
+import lower_bound
 #Matrices found in a paper written by Teiko Heinosaari, Oskari Kerppo and Leevi Leppäjärvi
 #Called "COMMUNICATION TASKS IN OPERATIONAL THEORIES" https://arxiv.org/pdf/2003.05264
 #Also some others from https://arxiv.org/pdf/1407.4308 and https://arxiv.org/pdf/1407.4095
@@ -42,6 +42,19 @@ A_2 = ([[0,0,1,2,2,1],[1,0,0,1,2,2],[2,1,0,0,1,2],[2,2,1,0,0,1],[1,2,2,1,0,0],[0
 matrices.update({"A_2":A_2})
 A_tensor = np.kron(A,A)
 matrices.update({"A_tensor":A_tensor})
+B_tensor = np.kron(B,B)
+matrices.update({"B_tensor":B_tensor})
+C_tensor = np.kron(C,C)
+matrices.update({"C_tensor":C_tensor})
+D_tensor = np.kron(D,D)
+matrices.update({"D_tensor":D_tensor})
+D_3_tensor = np.kron(D_3,D_3)
+matrices.update({"D_3_tensor":D_3_tensor})
+sqrt_tensor = np.kron(sqrt,sqrt)
+matrices.update({"sqrt_tensor":sqrt_tensor})
+
+
+
 
 
 def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
@@ -51,4 +64,3 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
         mat = mat / mat.sum(axis=1, keepdims=True)
         matrices.append(mat)
     return matrices
-    

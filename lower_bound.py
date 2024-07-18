@@ -2,8 +2,6 @@ from numpy.linalg import matrix_rank
 import numpy as np
 import math
 
-
-
 def normalize_mat(M):
     """Normalizes the rows of a matrix
     
@@ -188,24 +186,22 @@ def grad_vec_min(M,q):
 
 
 def grad_vec_minD(M,q,D):
-    """calculates the gradient vector"""
-    M = np.array(M)
     sum = 0
     gradient = []
-    for i in range(len(q)):
-        for j in range(len(q)):
-            for k in range(len(D)):
+    ran = min(M.shape)
+    for i in range(ran):
+        for j in range(ran):
+            for k in range(ran):
                 l = k
-                while(l in range(len(D))):
-                    if l == k:
-                        sum = sum + q[i]*q[j]*2*D[k][k]*M[i][k]*M[j][k]
-                        l += 1
-                    else:
-                        sum = sum + q[i]*q[j]*2*D[l][l]*np.sqrt(M[i][k]*M[j][k])*np.sqrt(M[i][l]*M[j][l])
-                        l+=1
-                gradient.append(sum)
-                sum = 0
-    return gradient
+                sum += q[i]*q[j]*2*D[k][k]*M[i][k]*M[j][k]
+                while(l<ran):
+                    sum+= q[i]*q[j]*2*D[l][l]*np.sqrt(M[i][k]*M[j][k])*np.sqrt(M[i][l]*M[j][l])
+                    l+=1
+        gradient.append(sum) #the ith entry of the gradient vector
+        sum = 0
+    return(gradient)
+
+    
 
 
 def F(M_i,M_j):
@@ -350,33 +346,41 @@ def B3_gradientD(M, lr=0.001, max_iter = 1000, lr_scaler = 0.95, eps = 0.00001):
 
     """
     M = np.array(M)
-
-    res_log = []    #Log containing results
-    q_log = [0,0]   #Log containing q_i and q_(i+1) 
-    for i in range(100): 
-        D = np.zeros((M.shape[0],M.shape[0]))
-        for i in range(M.shape[0]):
+    M = M.T
+    D = np.zeros((len(M),len(M)))
+    res_log = []
+    q_log = [0,0]
+    D_log = [0,0]
+    for iter in range(100):
+        res = 0
+        for i in range(len(D)):
             D[i,i] = np.random.randint(1,11)
-        res = 0     #Initialize result variable
-        q = generate_q(M)   #Generate a random probability distribution
-        q_log[0] = q    #Log q_i
-        gradient = grad_vec_minD(M,q,D)    #Calculate the the gradient vector in the point q
-        for ii in range(max_iter):
+        q = generate_q(M)
+        q_log[0] = q    
+        D_log[0] = D
+        gradientq = grad_vec_min(M,q)
+        gradientD = grad_vec_minD(M,q,D)
+        for iter1 in range(10000):
             for i in range(len(q)):
-                q[i] = q[i]-lr*gradient[i]  #Update the value of q according to the gradient
-                D[i][i] = D[i][i] - lr*gradient[i]
-                if q[i]<0: q[i] = 0     #Keeps q in bounds
-            lr = lr * lr_scaler     #Update the step size (learning rate)
-            q = normalize(q)    #Normalize q so that its entries sum up to one
-            q_log[1] = q    #log q_(i+1)
+                q[i] = q[i] -lr*gradientq[i]
+                if q[i]<0: q[i] = 0
+            for i in range(min(len(D),len(gradientD))):
+                D[i,i] = D[i,i] -lr*gradientD[i]
+            lr = lr*lr_scaler
+            q = normalize(q)
+            q_log[1] = q    
+            D_log[1] = D
             q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-            if(max(q_temp)<eps): break      #Check if change is so small that iterating further is not sensible
-            q_log[0] = q_log[1]
-            gradient = grad_vec_minD(M,q,D)
+            D_temp = np.array([D_log[0][i,i] - D_log[1][i,i] for i in range(len(D))])
+            if(max(q_temp)<eps and max(D_temp)<eps): break     
+            gradientq = grad_vec_min(M,q)
+            gradientD = grad_vec_minD(M,q,D)
+        M = np.dot(D,M)
+        normalize_mat(M)
         for i in range(len(M)):
             for j in range(len(M)):
                 res = res + q[i]*q[j]*F(M[i],M[j])**2
-        res = 1 / res
+        res = 1/res
         res_log.append(res)
     return max(res_log)
 
@@ -506,30 +510,35 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     if not is_stochastic(M): return 0
     M = np.array(M)
     sums = []
+    summed = []
     grad = []
     P_k_log = []
     q_log = [0,0]    
 
-    for i in range((M.shape[1])):
-        lr = 0.001
-        q = generate_q(M)
-        q_log[0] = q    
-        for iter in range(1000):
-            for k in range((len(q))):
-                P_k_log.append(calc_B5(M,q,i))
-                q[k] = q[k] + eps
-                P_k_log.append(calc_B5(M,q,i))
-                grad.append((P_k_log[-1]-P_k_log[-2])/eps)
-            for x in range(len(q)):
-                q[x] = q[x] + lr*grad[x]
-            q = normalize(q)
-            q_log[1] = q   
-            q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-            if(max(q_temp)<0.00001): break     
-            lr = lr * lr_scaler
-            grad.clear()
-        sums.append(max(P_k_log))
-    return sum(sums)
+    for iter in range(5):
+        for i in range((M.shape[1])):
+            lr = 0.001
+            q = generate_q(M)
+            q_log[0] = q    
+            for iter in range(1000):
+                for k in range((len(q))):
+                    P_k_log.append(calc_B5(M,q,i))
+                    q[k] = q[k] + eps
+                    P_k_log.append(calc_B5(M,q,i))
+                    grad.append((P_k_log[-1]-P_k_log[-2])/eps)
+                for x in range(len(q)):
+                    q[x] = q[x] + lr*grad[x]
+                q = normalize(q)
+                q_log[1] = q   
+                q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
+                if(max(q_temp)<0.00001): break     
+                lr = lr * lr_scaler
+                grad.clear()
+            sums.append(max(P_k_log))
+        summed.append(sum(sums))
+        sums.clear()
+        P_k_log.clear()
+    return max(summed)
 
 
 def calc_B5(M,q,i):
@@ -545,4 +554,5 @@ def calc_B5(M,q,i):
     return summa2/np.sqrt(summa1)
 
 
-l_bounds = [B1, B3_gradient,B3_newton, B4, B4D, B5]
+l_bounds = [B1, B3_gradient, B3_gradientD ,B3_newton, B4, B4D, B5]
+
