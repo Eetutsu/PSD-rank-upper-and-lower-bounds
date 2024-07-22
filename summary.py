@@ -3,7 +3,7 @@ import upper_bound
 import math
 
 
-def solve(M, printed = 0, round_print = True):
+def solve(M, printed = 0, round_print = True, eps = 0.0000001):
     lbs = []
     ubs = []
     if printed == 0:
@@ -26,7 +26,8 @@ def solve(M, printed = 0, round_print = True):
             else:
                 print(f"{func.__name__}: {res}")
         ubs.append(res)
-    if(math.ceil(max(lbs)) == min(ubs)):
+    lb_max = max(lbs)
+    if(math.isclose((lb_max),min(ubs),rel_tol=eps)):
         print(f"PSD-rank is {min(ubs)} for matrix:")
         if round_print:
             for row in M:
@@ -38,7 +39,7 @@ def solve(M, printed = 0, round_print = True):
         print("\n")
     else:
         if printed <=1:
-            print(f"PSD-rank is within bounds: {math.ceil(max(lbs)):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")
+            print(f"PSD-rank is within bounds: {math.ceil(lb_max):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")
             for row in M:
                 if round_print:
                     rounded_row = [round(x,2) for x in row]
