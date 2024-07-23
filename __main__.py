@@ -3,22 +3,29 @@ import upper_bound as ub
 import test_matrices
 import time
 from summary import solve
+import summary
 
 def random():
-    print()
+    lb_methods = [0, 0, 0, 0, 0, 0, 0, 0]
     tic = time.perf_counter()
     test_matrices.random_matrices(range_max=6)
-    for matrix in test_matrices.random_matrices(rows=6,cols=5,n_matrices=1000):
-        solve(matrix,printed=0,round_print=False)
+    for matrix in test_matrices.random_matrices(rows=4,cols=4,n_matrices=100):
+        i = solve(matrix,printed=0,round_print=False)
+        lb_methods[i] = lb_methods[i] + 1
+        print(lb_methods)
 
     toc = time.perf_counter()
     print(f"Aikaa kului: {toc - tic:0.4f} sekuntia")
 
 def not_random():
     tic = time.perf_counter()
-
+    lb_methods_max = [0, 0, 0, 0, 0, 0, 0, 0]
     for matrix in test_matrices.matrices.values():
-        solve(matrix, round_print= False)
+        i = solve(matrix, round_print= False)
+        lb_methods_max[i] = lb_methods_max[i] + 1
+        print(lb_methods_max)
+
+
     toc = time.perf_counter()
     print(f"Aikaa kului: {toc - tic:0.4f} sekuntia")
 

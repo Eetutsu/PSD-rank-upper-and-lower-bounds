@@ -27,7 +27,7 @@ def solve(M, printed = 0, round_print = True, eps = 0.0000001):
                 print(f"{func.__name__}: {res}")
         ubs.append(res)
     lb_max = max(lbs)
-    if(math.isclose((lb_max),min(ubs),rel_tol=eps)):
+    if(math.isclose((lb_max),min(ubs),rel_tol=eps) or math.ceil(lb_max) == min(ubs)):
         print(f"PSD-rank is {min(ubs)} for matrix:")
         if round_print:
             for row in M:
@@ -47,6 +47,11 @@ def solve(M, printed = 0, round_print = True, eps = 0.0000001):
                 else:
                     print(row)
             print("\n")
+    return lbs.index(max(lbs))
+
+
+
+
 
 #for matrix in test_matrices.matrices.values():
 #    solve(matrix)

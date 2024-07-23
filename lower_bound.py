@@ -515,7 +515,7 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     P_k_log = []
     q_log = [0,0]    
 
-    for iter in range(5):
+    for iter in range(3):
         for i in range((M.shape[1])):
             lr = 0.001
             q = generate_q(M)
@@ -586,8 +586,9 @@ def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     grad = []
     P_k_log = []
     q_log = [0,0]    
-
-    for iter in range(5):
+    D_log = [0,0]
+    D_log[0] = D
+    for iter in range(1):
         for i in range((M.shape[1])):
             lr = 0.001
             q = generate_q(M)
@@ -606,8 +607,10 @@ def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
                 M = np.dot(D,M)
                 M = normalize_mat(M)
                 q_log[1] = q   
+                D_log[1] = D
                 q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-                if(max(q_temp)<0.00001): break     
+                D_temp = np.array([D_log[0][i,i] - D_log[1][i,i] for i in range(len(D))])
+                if(max(q_temp)<0.00001 and max(D_temp)<0.00001): break     
                 lr = lr * lr_scaler
                 grad.clear()
             sums.append(max(P_k_log))
