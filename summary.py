@@ -3,25 +3,25 @@ import upper_bound
 import math
 
 
-def solve(M, printed = 0, round_print = True, eps = 0.0000001):
+def solve(M, print_steps = 0, print_rounded = True, eps = 0.0000001):
     lbs = []
     ubs = []
-    if printed == 0:
+    if print_steps == 0:
         print("Lower Bounds:")
     for func in lower_bound.l_bounds:
         res = func(M)
-        if printed == 0:
-            if round_print:
+        if print_steps == 0:
+            if print_rounded:
                 print(f"{func.__name__}: {res :.3f}")
             else:
                 print(f"{func.__name__}: {res}")
         lbs.append(res)
-    if printed == 0:
+    if print_steps == 0:
         print("Upper Bounds: ")
     for func in upper_bound.u_bounds:
         res = func(M)
-        if printed == 0:
-            if round_print:
+        if print_steps == 0:
+            if print_rounded:
                 print(f"{func.__name__}: {res :.3f}")
             else:
                 print(f"{func.__name__}: {res}")
@@ -29,7 +29,7 @@ def solve(M, printed = 0, round_print = True, eps = 0.0000001):
     lb_max = max(lbs)
     if(math.isclose((lb_max),min(ubs),rel_tol=eps) or math.ceil(lb_max) == min(ubs)):
         print(f"PSD-rank is {min(ubs)} for matrix:")
-        if round_print:
+        if print_rounded:
             for row in M:
                 rounded_row = [round(x,2) for x in row]
                 print(rounded_row)
@@ -38,16 +38,16 @@ def solve(M, printed = 0, round_print = True, eps = 0.0000001):
                 print(row)
         print("\n")
     else:
-        if printed <=1:
+        if print_steps <=1:
             print(f"PSD-rank is within bounds: {math.ceil(lb_max):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")
             for row in M:
-                if round_print:
+                if print_rounded:
                     rounded_row = [round(x,2) for x in row]
                     print(rounded_row)
                 else:
                     print(row)
             print("\n")
-    return lbs.index(max(lbs))
+    return lbs
 
 
 

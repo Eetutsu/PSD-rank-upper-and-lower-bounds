@@ -4,6 +4,7 @@ import test_matrices
 import time
 from summary import solve
 import summary
+import math
 
 def random():
     lb_methods = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -18,12 +19,12 @@ def random():
     print(f"Aikaa kului: {toc - tic:0.4f} sekuntia")
 
 def not_random():
-    tic = time.perf_counter()
     lb_methods_max = [0, 0, 0, 0, 0, 0, 0, 0]
+    lb_methods_correct = [0, 0, 0, 0, 0, 0, 0, 0]
+    tic = time.perf_counter()
     for matrix in test_matrices.matrices.values():
-        i = solve(matrix, round_print= False)
-        lb_methods_max[i] = lb_methods_max[i] + 1
-        print(lb_methods_max)
+        lbs = solve(matrix, round_print= False)
+        stats(lbs,lb_methods_correct,lb_methods_max)
 
 
     toc = time.perf_counter()
@@ -45,6 +46,15 @@ def __main__():
     #solve([[1, 1],[1, 1]])
     #solve([[1, 0],[0, 1]])
 
+
+def stats(lbs,lb_methods_correct,lb_methods_max):
+    
+    i   = lbs.index(max(lbs))
+    lb_methods_max[i] += 1
+    for j  in range(len(lbs)):
+        if math.ceil(lbs[j]) == math.ceil(max(lbs)):
+            lb_methods_correct[j] +=1
+    print(f"{lb_methods_max}\n {lb_methods_correct}")
 
 if __name__ == "__main__":
     __main__()
