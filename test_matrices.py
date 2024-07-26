@@ -38,66 +38,17 @@ sqrt = ([[1,0,1],[0,1,4],[1,1,1]])     #Positive semidefinite rank definition 5.
 matrices.update({"sqrt":sqrt})
 M = ([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])    #Positive semidefinite rank 2.2 page 6
 matrices.update({"M":M})
-A_tensor_A = np.kron(A,A)
-matrices.update({"A_tensor_A":A_tensor_A})
-A_tensor_B = np.kron(A,B)
-matrices.update({"A_tensor_B":A_tensor_B})
-A_tensor_C = np.kron(A,C)
-matrices.update({"A_tensor_C":A_tensor_C})
-A_tensor_D = np.kron(A,D)
-matrices.update({"A_tensor_D":A_tensor_D})
-A_tensor_D_3 = np.kron(A,D_3)
-matrices.update({"A_tensor_D_3":A_tensor_D_3})
-A_tensor_sqrt = np.kron(A,sqrt)
-matrices.update({"A_tensor_sqrt":A_tensor_sqrt})
-B_tensor_A = np.kron(B,A)
-matrices.update({"B_tensor_A":B_tensor_A})
-B_tensor_B = np.kron(B,B)
-matrices.update({"B_tensor_B":B_tensor_B})
-B_tensor_C = np.kron(B,C)
-matrices.update({"B_tensor_C":B_tensor_C})
-B_tensor_D = np.kron(B,D)
-matrices.update({"B_tensor_D":B_tensor_D})
-B_tensor_D_3 = np.kron(B,D_3)
-matrices.update({"B_tensor_D_3":B_tensor_D_3})
-B_tensor_sqrt = np.kron(B,sqrt)
-matrices.update({"B_tensor_sqrt":B_tensor_sqrt})
-C_tensor_A = np.kron(C,A)
-matrices.update({"C_tensor_A":C_tensor_A})
-C_tensor_B = np.kron(C,B)
-matrices.update({"C_tensor_B":C_tensor_B})
-C_tensor_C = np.kron(C,C)
-matrices.update({"C_tensor_C":C_tensor_C})
-C_tensor_D = np.kron(C,D)
-matrices.update({"C_tensor_D":C_tensor_D})
-C_tensor_D_3 = np.kron(C,D_3)
-matrices.update({"C_tensor_D_3":C_tensor_D_3})
-C_tensor_sqrt = np.kron(C,sqrt)
-matrices.update({"C_tensor_sqrt":C_tensor_sqrt})
-D_tensor_A = np.kron(D,A)
-matrices.update({"D_tensor_A":D_tensor_A})
-D_tensor_B = np.kron(D,B)
-matrices.update({"D_tensor_B":D_tensor_B})
-D_tensor_C = np.kron(D,C)
-matrices.update({"D_tensor_C":D_tensor_C})
-D_tensor_D = np.kron(D,D)
-matrices.update({"D_tensor_D":D_tensor_D})
-D_tensor_D_3 = np.kron(D,D_3)
-matrices.update({"D_tensor_D_3":D_tensor_D_3})
-D_tensor_sqrt = np.kron(D,sqrt)
-matrices.update({"D_tensor_sqrt":D_tensor_sqrt})
-sqrt_tensor_A = np.kron(sqrt,A)
-matrices.update({"sqrt_tensor_A":sqrt_tensor_A})
-sqrt_tensor_B = np.kron(sqrt,B)
-matrices.update({"sqrt_tensor_B":sqrt_tensor_B})
-sqrt_tensor_C = np.kron(sqrt,C)
-matrices.update({"sqrt_tensor_C":sqrt_tensor_C})
-sqrt_tensor_D = np.kron(sqrt,D)
-matrices.update({"sqrt_tensor_D":sqrt_tensor_D})
-sqrt_tensor_D_3 = np.kron(sqrt,D_3)
-matrices.update({"sqrt_tensor_D_3":sqrt_tensor_D_3})
-sqrt_tensor_sqrt = np.kron(sqrt,sqrt)
-matrices.update({"sqrt_tensor_sqrt":sqrt_tensor_sqrt})
+
+def kronecker_products(matrices):
+    keys = list(matrices.keys())
+    for i, key1 in enumerate(keys):
+        for key2 in keys[i+1:]:
+            new_key = f"{key1}_tensor_{key2}"
+            if min(np.kron(matrices[key1], matrices[key2]).shape)>5:
+                continue
+            else:
+                matrices[new_key] = np.kron(matrices[key1], matrices[key2])
+    return matrices
 
 def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
     matrices = []
@@ -106,3 +57,5 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
         mat = mat / mat.sum(axis=1, keepdims=True)
         matrices.append(mat)
     return matrices
+
+kronecker_products(matrices)

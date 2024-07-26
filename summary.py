@@ -42,14 +42,13 @@ def solve(M, print_steps = 0, print_rounded = True, eps = 0.0000001):
     lb_max = max(lbs)
     if(math.isclose((lb_max),min(ubs),rel_tol=eps) or math.ceil(lb_max) == min(ubs)):   #Check if psd-rank was "solved"
         print(f"PSD-rank is {min(ubs)} for matrix:")    #Print psd-rank
-        if print_rounded:
-            for row in M:   
-                if print_rounded:
-                    rounded_row = [round(x,2) for x in row]
-                    print(rounded_row)  #Print for which matrix psd-rank was found for with each element rounded
-                else:
-                    print(row)  #Print for which matrix psd-rank was found for
-            print("\n")
+        for row in M:   
+            if print_rounded:
+                rounded_row = [round(x,2) for x in row]
+                print(rounded_row)  #Print for which matrix psd-rank was found for with each element rounded
+            else:
+                print(row)  #Print for which matrix psd-rank was found for
+        print("\n")
     else:
         if print_steps <=1:
             print(f"PSD-rank is within bounds: {math.ceil(lb_max):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")    #Print the bounds for psd-rank
