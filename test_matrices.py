@@ -41,10 +41,10 @@ matrices.update({"M":M})
 
 def kronecker_products(matrices):
     keys = list(matrices.keys())
-    for i, key1 in enumerate(keys):
-        for key2 in keys[i+1:]:
+    for key1 in (keys):
+        for key2 in keys[0:]:
             new_key = f"{key1}_tensor_{key2}"
-            if min(np.kron(matrices[key1], matrices[key2]).shape)>5:
+            if min(np.kron(matrices[key1], matrices[key2]).shape)>10:
                 continue
             else:
                 matrices[new_key] = np.kron(matrices[key1], matrices[key2])

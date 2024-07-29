@@ -41,7 +41,7 @@ def solve(M, print_steps = 0, print_rounded = True, eps = 0.0000001):
         ubs.append(res)
     lb_max = max(lbs)
     if(math.isclose((lb_max),min(ubs),rel_tol=eps) or math.ceil(lb_max) == min(ubs)):   #Check if psd-rank was "solved"
-        print(f"PSD-rank is {min(ubs)} for matrix:")    #Print psd-rank
+        print(f"PSD-rank is {min(ubs)} for matrix :")    #Print psd-rank
         for row in M:   
             if print_rounded:
                 rounded_row = [round(x,2) for x in row]
