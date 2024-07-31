@@ -4,7 +4,7 @@ import math
 
 
 def normalize_mat(M):
-    """Normalizes the rows of a matrix
+    """Normalizes the rows of a matrix to sum up to one
     
     Parameters
     ----------
@@ -76,7 +76,7 @@ def B4(M, is_D = False):
     
     Returns
     ----------
-    string
+    int
         if not row stochastic
     float
         the lower bound
@@ -92,23 +92,23 @@ def B4(M, is_D = False):
         return sum
 
 
-def B4D(M,lr = 0.01, eps = 0.01, break_cond = 0.000001 ,lr_scaler = 0.95):
-    """Calculates a lower bound on the PSD-rank for a given matrix using gradient descent approach and diagonal scaling.
+def B4D(M, lr = 0.001, eps = 0.001, break_cond = 0.000001 ,lr_scaler = 0.95):
+    """Calculates a lower bound on the PSD-rank for a given nonnegative matrix using gradient descent approach and diagonal scaling.
     
     Method found in: some upper and lower bounds on PSD-rank: https://arxiv.org/pdf/1407.4308 Definition 25 Page 10
 
     Parameters
     ----------
     M : list
-      the matrix we want to find a lower bound on PSD-rank for
+      the nonnegative matrix we want to find a lower bound on PSD-rank for
     lr : float
-      learning rate used to update the gradient (default 0.01)
+      learning rate used to update probability distribution q using the gradient vector (default 0.001)
     eps : float
-      used to approximate the derivate (default 0.01)
+      used to approximate the derivate (default 0.001)
     break_cond : float
       used to determine wheter iterating further is senseible (default 0.000001)
     lr_scaler : float
-        scales the learning rate after each iteration
+        scales the learning rate after each iteration (default 0.95)
     
     Returns
     ----------
@@ -192,7 +192,7 @@ def grad_vec_minD(M,q,D):
     Parameters
     ----------
     M : list
-      the matrix used to calculate the fidelity
+      used in calculating the gradient vector
     D : list
         the matrix that determines the point in which the gradient is calculated
     q : list
@@ -254,7 +254,7 @@ def normalize(q_temp):
     Returns
     ----------
     list
-      a matrix with entries that sum up to one
+      a vector with entries that sum up to one (probability distribution)
     """
 
     q = []
@@ -293,9 +293,9 @@ def B3_gradient(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
     M : list
         The matrix that we find the lower bound for
     lr : float
-      learning rate used in updating the gradient vector (default 0.001)
+      learning rate used to update probability distribution q using the gradient vector (default 0.001)
     max_iter : int
-        maximum iterations for updating the gradient vector (default is 1000)
+        maximum iterations for updating the gradient vector (default 1000)
     lr_scaler : float 
         scales the learning rate after each iteration (default 0.95)
     eps : float
@@ -303,9 +303,13 @@ def B3_gradient(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
     
     Returns
     ----------
+    int
+        if not row stochastic
     float
       a lower bound of PSD-rank for the matrix M
     """
+
+
     if not is_stochastic(M): return 0
     else:
         #Initialize array that logs results
@@ -335,7 +339,7 @@ def B3_gradient(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
                 #log vector q_(i+1)  
                 q_log[1] = q   
                 q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
-                #Check if change is so small that interating further is not sensible
+                #Check if change is so small that iterating further is not sensible
                 if(max(q_temp)<eps): break     
                 #vector q_i+1 is now q_i
                 q_log[0] = q_log[1]
@@ -362,9 +366,9 @@ def B3_gradientD(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001)
     M : list
         The matrix that we find the lower bound for
     lr : float
-      learning rate used in updating the gradient vector (default 0.001)
+      learning rate used to update probability distribution q using the gradient vector (default 0.001)
     max_iter : int
-        maximum iterations for updating the gradient vector (default is 10000)
+        maximum iterations for updating q (default is 10000)
     lr_scaler : float 
         scales the learning rate after each iteration (default 0.95)
     eps : float
@@ -375,36 +379,42 @@ def B3_gradientD(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001)
     float
       a lower bound of PSD-rank for the matrix M
     """
+
+
     M = np.array(M)
     M = M.T
     D = np.zeros((len(M),len(M)))
-    res_log = []
+    #Initialize logs for result, vector q, and matrix D
+    res_log = [] 
     q_log = [0,0]
     D_log = [0,0]
     for iter in range(100):
+        #Initialize result variable
         res = 0
         for i in range(len(D)):
             D[i,i] = np.random.randint(1,11) #Generate random diagonal matrix D
         q = generate_q(M)   #generate random probability distribution
-        q_log[0] = q    
-        D_log[0] = D
         gradientq = grad_vec_min(M,q)   #calculate gradient vector for q
         gradientD = grad_vec_minD(M,q,D)    #calculate gradient vector for D
         for iter1 in range(max_iter):
+            #log both q_i and D_i
+            q_log[0] = q    
+            D_log[0] = D
             for i in range(len(q)):
                 q[i] = q[i] -lr*gradientq[i]    #update q according to the gradient vector
                 if q[i]<0: q[i] = 0
             for i in range(min(len(D),len(gradientD))):
                 D[i,i] = D[i,i] -lr*gradientD[i]    #update D according to the gradient vector
-            lr = lr*lr_scaler
-            q = normalize(q)    
+            lr = lr*lr_scaler   #Scale the learning rate
+            q = normalize(q)    #normalize q
+            #log both q_i+1 and D_i+1
             q_log[1] = q    
             D_log[1] = D
             q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   
             D_temp = np.array([D_log[0][i,i] - D_log[1][i,i] for i in range(len(D))])
             if(max(q_temp)<eps and max(D_temp)<eps): break     #check wheter iterating further is sensible
-            gradientq = grad_vec_min(M,q)   #calculate gradient vector for q
-            gradientD = grad_vec_minD(M,q,D)    #calculate gradient vector for D
+            gradientq = grad_vec_min(M,q)   #calculate gradient vector for q_i+1
+            gradientD = grad_vec_minD(M,q,D)    #calculate gradient vector for D_i+1
         M = np.dot(D,M)     #Calculate matrix used in B3'
         normalize_mat(M)    #Normalize the rows of the matrix
         for i in range(len(M)):
@@ -532,6 +542,8 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     
     Returns
     ----------
+    int
+        if not a row sotchastic matrix
     float
         the lower bound
     """
@@ -576,7 +588,7 @@ def calc_B5(M,q,i):
     Parameters
     ----------
     M   : list
-        the matrix we want to calculate B5'(M) for
+        the matrix we want to calculate B5(M) for
     q : list
         used to calculate denominator
     i : int
@@ -649,8 +661,6 @@ def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
                     q[x] = q[x] + lr*grad[x]    #update q according to the gradient vector
                     D[x,x] = D[x,x] + lr*grad[x]    #update D according to the gradient vector
                 q = normalize(q)
-                M = np.dot(D,M)
-                M = normalize_mat(M)
                 q_log[1] = q   
                 D_log[1] = D
                 q_temp = np.array([q_log[0][i] - q_log[1][i] for i in range(len(q))])   

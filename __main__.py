@@ -24,7 +24,9 @@ def not_random():
     for matrix in test_matrices.matrices.keys():
         print(f"PSD-rank solved for: {matrix}")
         lbs = solve(test_matrices.matrices[matrix], print_rounded= False)
+        print("\n")
         stats(lbs,lb_methods_correct,lb_methods_max)
+        print("\n")
 
 
     toc = time.perf_counter()
@@ -53,7 +55,7 @@ def stats(lbs,lb_methods_correct,lb_methods_max):
     for j  in range(len(lbs)):
         if math.ceil(lbs[j]) == math.ceil(max(lbs)):
             lb_methods_correct[j] +=1
-    print(f"{lb_methods_max}\n {lb_methods_correct}\n")
+    print(f"{lb_methods_max}\n {lb_methods_correct}")
 
 if __name__ == "__main__":
     __main__()
