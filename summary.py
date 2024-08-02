@@ -48,13 +48,13 @@ def solve(M, print_steps = 0, print_rounded = True, eps = 0.0000001):
                 print(rounded_row)  #Print for which matrix psd-rank was found for with each element rounded
             else:
                 print(row)  #Print for which matrix psd-rank was found for
+        return [min(ubs)]
     else:
-        if print_steps <=1:
-            print(f"PSD-rank is within bounds: {math.ceil(lb_max):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")    #Print the bounds for psd-rank
-            for row in M:   
-                if print_rounded:
-                    rounded_row = [round(x,2) for x in row]
-                    print(rounded_row)  #Print for which matrix psd-rank was found for with each element rounded
-                else:
-                    print(row)  #Print for which matrix psd-rank was found for
-    return lbs
+        print(f"PSD-rank is within bounds: {math.ceil(lb_max):.1f}<=rank_psd<={min(ubs):.1f}. For matrix: ")    #Print the bounds for psd-rank
+        for row in M:   
+            if print_rounded:
+                rounded_row = [round(x,2) for x in row]
+                print(rounded_row)  #Print for which matrix psd-rank was found for with each element rounded
+            else:
+                print(row)  #Print for which matrix psd-rank was found for
+        return [x for x in range(math.ceil(lb_max),min(ubs)+1)]

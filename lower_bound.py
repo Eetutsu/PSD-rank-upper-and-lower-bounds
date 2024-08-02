@@ -115,6 +115,8 @@ def B4D(M, lr = 0.001, eps = 0.001, break_cond = 0.000001 ,lr_scaler = 0.95):
     float
         lower bound for PSD-rank
     """
+
+
     sums = []
     grad = []
     p_log = [0,0]

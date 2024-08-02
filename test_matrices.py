@@ -32,17 +32,31 @@ C = ([[1,0,0],[0,1/2,1/2],[1/2,0,1/2]])
 matrices.update({"C":C})
 D = ([[1,0,0],[0,1/2,1/2],[0,0,1]])
 matrices.update({"D":D})
-NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])  #Positive semidefinite rank theorem 5.6 page 19
-matrices.update({"NP":NP})
+#NP = ([[1,0,0,25],[0,1,0,144],[0,0,1,169],[1,1,1,0]])  #Positive semidefinite rank theorem 5.6 page 19
+#matrices.update({"NP":NP})
 sqrt = ([[1,0,1],[0,1,4],[1,1,1]])     #Positive semidefinite rank definition 5.2. page 18
 matrices.update({"sqrt":sqrt})
 M = ([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])    #Positive semidefinite rank 2.2 page 6
 matrices.update({"M":M})
 
+
+
+def dot_products(matrices):
+    keys = list(matrices.keys())
+    for key1 in keys:
+        for key2 in keys:
+            new_key = f"{key1}_dot_{key2}"
+            try:
+                matrices[new_key] = np.dot(matrices[key1],matrices[key2])
+            except:
+                continue
+    return matrices
+
+
 def kronecker_products(matrices):
     keys = list(matrices.keys())
-    for key1 in (keys):
-        for key2 in keys[0:]:
+    for key1 in keys[6:]:
+        for key2 in keys:
             new_key = f"{key1}_tensor_{key2}"
             if min(np.kron(matrices[key1], matrices[key2]).shape)>10:
                 continue
@@ -57,5 +71,3 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
         mat = mat / mat.sum(axis=1, keepdims=True)
         matrices.append(mat)
     return matrices
-
-kronecker_products(matrices)
