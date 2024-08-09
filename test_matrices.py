@@ -55,7 +55,7 @@ def dot_products(matrices):
 
 def kronecker_products(matrices):
     keys = list(matrices.keys())
-    for key1 in keys[6:]:
+    for key1 in keys:
         for key2 in keys:
             new_key = f"{key1}_tensor_{key2}"
             if min(np.kron(matrices[key1], matrices[key2]).shape)>10:
@@ -71,3 +71,6 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
         mat = mat / mat.sum(axis=1, keepdims=True)
         matrices.append(mat)
     return matrices
+
+
+kronecker_products(matrices)
