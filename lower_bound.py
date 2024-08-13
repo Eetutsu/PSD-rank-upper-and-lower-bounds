@@ -178,10 +178,10 @@ def grad_vec_min(M,q):
         j = i
         while(j in range(len(M))):
             if i == j:
-                sum += 2*q[i]+F(M[i],M[j])**2 #The derivate when i = j 
+                sum += 2*q[i]+F(M[i],M[j])**2 #The derivative when i = j 
                 j+=1
             else:
-                sum += 2*q[j]+F(M[i],M[j])**2 #The derivate when i != j
+                sum += 2*q[j]+F(M[i],M[j])**2 #The derivative when i != j
                 j+=1
         gradient.append(sum) #the ith entry of the gradient vector
         sum = 0
@@ -358,7 +358,7 @@ def B3_gradient(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
         return max(res_log)
     
 
-def B3_gradientD(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
+def B3D_gradient(M, lr=0.001, max_iter = 10000, lr_scaler = 0.95, eps = 0.00001):
     """Calculates a lower bound on the PSD-rank for a nonnegative matrix using gradient descent and diagonal scaling. 
 
     Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Page 9 Definition 20
@@ -710,4 +710,4 @@ def calc_B5D(M,q,i,D):
     return summa2/np.sqrt(summa1)
 
 
-l_bounds = [B1, B3_gradient, B3_gradientD ,B3_newton, B4, B4D, B5, B5D]
+l_bounds = [B1, B3_gradient, B3D_gradient ,B3_newton, B4, B4D, B5, B5D]

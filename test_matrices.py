@@ -1,5 +1,5 @@
 import numpy as np
-import lower_bound
+import summary
 #Matrices found in a paper written by Teiko Heinosaari, Oskari Kerppo and Leevi Leppäjärvi
 #Called "COMMUNICATION TASKS IN OPERATIONAL THEORIES" https://arxiv.org/pdf/2003.05264
 #Also some others from https://arxiv.org/pdf/1407.4308 and https://arxiv.org/pdf/1407.4095
@@ -73,4 +73,5 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
     return matrices
 
 
-kronecker_products(matrices)
+#kronecker_products(matrices)
+summary.solve(M)

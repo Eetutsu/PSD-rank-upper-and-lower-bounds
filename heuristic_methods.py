@@ -15,7 +15,7 @@ def generate_A_B(M, dim):
     return arr_A, arr_B
 
 
-def alternating_strategy(M):
+def alternating_strategy(M,round_accuracy=10):
 
 
     def objective_function(X_row, B, A):
@@ -54,19 +54,20 @@ def alternating_strategy(M):
                 X[i ,j] = np.trace(np.dot(arr_A[i],arr_B[j]))
         print("A eigenvalues and matrices")
         for mat in arr_A:
-            print(mat)
+            print(np.round(mat,round_accuracy))
             print(np.linalg.eigh(mat)[0])
             print("\n")
         print("\n B eigenvalues and matrices")
         for mat in arr_B:
-            print(mat)
+            print(np.round(mat,round_accuracy))
             print(np.linalg.eigh(mat)[0])    
             print("\n")
 
-        print("Original matrix and new matrix:")
-        print(M)
-        print(X)
-        print(f"Frobenius norm: {np.linalg.norm(M-X)} \n")
+        print("Original matrix M:")
+        print(np.round(M,round_accuracy))
+        print("New matrix X formed from factors: X_ij = Tr(A_iB_j)")
+        print(np.round(X,round_accuracy))
+        print(f"Frobenius norm (M-X): {np.linalg.norm(M-X)} \n")
         
 
 
@@ -161,4 +162,3 @@ def accelerated_gradient_method(M):
 #for matrix in test_matrices.matrices.values():
 #    alternating_strategy(matrix)
 #    print("\n")
-accelerated_gradient_method(test_matrices.A)
