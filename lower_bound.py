@@ -16,6 +16,8 @@ def normalize_mat(M):
     list
         normalized matrix
     """
+
+
     for row in M:
         summa = sum(row)
         for i in range(len(row)):
@@ -36,6 +38,8 @@ def is_stochastic(M):
     boolean
         returns True if it is row stochastic, if not, returns False
     """
+
+
     rowsum = 0
     for row in M:
         for i in row:
@@ -61,10 +65,12 @@ def B1(M):
     float
         lower bound for PSD-rank           
     """
+
+
     return (1/2)*np.sqrt(1+8*matrix_rank(M))-(1/2)      #Calculate and return the lower bound
 
 
-def B4(M, is_D = False):
+def B4(M, is_D=False):
     """Calculates a lower bound on the PSD-rank for a given row stochastic matrix
     
     Method found in: some upper and lower bounds on PSD-rank https://arxiv.org/pdf/1407.4308 Theorem 24 Page 10
@@ -171,6 +177,8 @@ def grad_vec_min(M,q):
     list
         the gradient vector
     """
+
+
     M = np.array(M)
     sum = 0
     gradient = []
@@ -214,9 +222,9 @@ def grad_vec_minD(M,q,D):
         for j in range(ran):
             for k in range(ran):
                 l = k
-                sum += q[i]*q[j]*2*D[k][k]*M[i][k]*M[j][k]  #derivate when l=k
+                sum += q[i]*q[j]*2*D[k][k]*M[i][k]*M[j][k]  #derivative when l=k
                 while(l<ran):
-                    sum+= q[i]*q[j]*2*D[l][l]*np.sqrt(M[i][k]*M[j][k])*np.sqrt(M[i][l]*M[j][l]) #derivate when l!=k
+                    sum+= q[i]*q[j]*2*D[l][l]*np.sqrt(M[i][k]*M[j][k])*np.sqrt(M[i][l]*M[j][l]) #derivative when l!=k
                     l+=1
         gradient.append(sum) #the ith entry of the gradient vector
         sum = 0
@@ -486,7 +494,7 @@ def B3_newton(M,lr=0.01,eps = 0.000001, lr_scaler = 0.95):
     float 
         the lower bound
     int
-        if hessian matrix is not invertible
+        if hessian matrix is not invertible or nonstochastic
     """
 
 

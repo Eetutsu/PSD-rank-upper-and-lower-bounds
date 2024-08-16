@@ -16,7 +16,14 @@ def solve(M, print_steps = 0, print_rounded = True, eps = 0.0000001):
         determines wheter values will be printed with three decimals (default True)
     eps : float
         determines accuracy for math.isclose()
+    
+    Retruns
+    --------
+    list
+        all the possible PSD_ranks
     """
+
+    
     lbs = []
     ubs = []
     if print_steps == 0:

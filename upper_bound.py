@@ -44,7 +44,7 @@ def hadamard_sqrt_upper_bound(M, is_accurate = True):
     row = 0
     col = 0
     sqrt_ranks = []
-    if len(M)*len(M.T)>=20: #Check wheter matrix is too big for accurate method
+    if len(M)*len(M.T)>=20: #Check wheter matrix is too big for every combination
         is_accurate = False
         print("Matrix too big for all combinations, using stochastic method")
 

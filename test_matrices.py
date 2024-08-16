@@ -74,4 +74,3 @@ def random_matrices(n_matrices=10000, rows=3, cols=4, range_max = 11):
 
 
 #kronecker_products(matrices)
-summary.solve(M)
