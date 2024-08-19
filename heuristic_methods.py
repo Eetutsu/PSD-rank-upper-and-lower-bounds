@@ -137,7 +137,7 @@ def optimize_subproblem(optimized, M, optimizer):
         X_row = M[i, :] #ith row of the original matrix we want to factorize
         A.value = optimized[i]
         objective = objective_function(X_row, optimizer, A) #The function we use to optimize
-        problem.set_objective('min', objective) #minimize the objective function
+        problem.set_objective('min', objective) #minimize the objective function§
         problem.solve() 
         optimized[i] = np.array(A.value)    #replace old value with optimized value
         
@@ -154,7 +154,7 @@ def accelerated_gradient_method(M):
     def optimize_subproblem(M,A,B, dim):
         A_log = [A]
         for t in range(1,len(A)):
-            Y = A_log[t-1]+(t-2)/(t+1)*(A_log[t-1]-A_log[t-2])
+            Y = A_log[t-1]+((t-2)/(t+1))*(A_log[t-1]-A_log[t-2])
             A = Proj_Q(Y, B, gradient(M,B,Y) ,M,dim)
             A_log.append(A)
         return A_log[-1]
@@ -233,6 +233,7 @@ def accelerated_gradient_method(M):
 
 #alternating_strategy([[0,1,1,1],[1,0,1,1],[1,1,0,1],[1,1,1,0]])
 #alternating_strategy([[0.47619048, 0.23809524, 0, 0.28571429,],[0.875, 0,    0,   0.125],[0.3, 0.26666667,0.16666667,0.26666667],[0.88888889, 0, 0, 0.11111111],[0.38095238, 0.14285714, 0, 0.47619048]])
-for matrix in test_matrices.matrices.values():
-    alternating_strategy(matrix)
+#for matrix in test_matrices.matrices.values():
+#    alternating_strategy(matrix)
 #    print("\n")
+accelerated_gradient_method(test_matrices.A)

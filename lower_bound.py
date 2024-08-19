@@ -79,6 +79,8 @@ def B4(M, is_D=False):
     ----------
     M : list
       the matrix we want to find a lower bound on PSD-rank for
+    is_D : boolean
+        used in B4D
     
     Returns
     ----------
@@ -534,7 +536,7 @@ def B3_newton(M,lr=0.01,eps = 0.000001, lr_scaler = 0.95):
     return max(res_log)
 
 
-def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
+def B5(M, eps=0.0001, lr =.001, lr_scaler = 0.95):
     """Calculates a lower bound on the PSD-rank for a row stochastic matrix using gradient descent.
 
     lower bound calculated using the method found in: https://arxiv.org/pdf/1407.4308 Page 10 Definition 28
@@ -569,6 +571,7 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     for iter in range(3):
         for i in range((M.shape[1])):
             lr = 0.001  #reset learning rate after maximizing q^(i) 
+            eps = 0.0001
             q = generate_q(M)   #Generate random probability distribution
             q_log[0] = q    
             for iter in range(1000):
@@ -577,6 +580,7 @@ def B5(M, eps=0.001, lr =.001, lr_scaler = 0.95):
                     q[k] = q[k] + eps
                     P_k_log.append(calc_B5(M,q,i))  #Calculate fraction part of B5 with vector q_1
                     grad.append((P_k_log[-1]-P_k_log[-2])/eps)  #Approximate the derivate and add it to the gradient vector
+                eps = eps*lr_scaler
                 for x in range(len(q)):
                     q[x] = q[x] + lr*grad[x] #update q according to the gradient vector
                 q = normalize(q)
@@ -622,7 +626,7 @@ def calc_B5(M,q,i):
     return summa2/np.sqrt(summa1)
 
 
-def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
+def B5D(M, eps=0.0001, lr =.001, lr_scaler = 0.95):
     """Calculates a lower bound on the PSD-rank for a nonnegative matrix using gradient descent.
 
     lower bound calculated using the method found in: https://arxiv.org/pdf/1407.4308 Page 11 Definition 30
@@ -658,6 +662,7 @@ def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
     for iter in range(1):
         for i in range((M.shape[1])):
             lr = 0.001 #reset learning rate after maximizing q^(i) 
+            eps = 0.0001
             q = generate_q(M) #Generate a random probability distribution
             q_log[0] = q #Log q
             for iter in range(1000):
@@ -667,6 +672,7 @@ def B5D(M, eps=0.001, lr =.001, lr_scaler = 0.95):
                     D[k,k] = D[k,k] + eps
                     P_k_log.append(calc_B5D(M,q,i,D))   #Calculate fraction part of B5' with q_1 and D_1
                     grad.append((P_k_log[-1]-P_k_log[-2])/eps)  #Approximate the derivate and add it to the gradient vector
+                eps = eps*lr_scaler
                 for x in range(len(q)):
                     q[x] = q[x] + lr*grad[x]    #update q according to the gradient vector
                     D[x,x] = D[x,x] + lr*grad[x]    #update D according to the gradient vector
