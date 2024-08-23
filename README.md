@@ -27,7 +27,7 @@ Contains all the implemented upper bounds
 ### lower_bound.py
 Contains all the implemented lower bounds
 ### solve_PSD_rank.py
-Calculates the bound for PSD-rank for a given matrix
+Contains a function that calculates the upper- and lower bound for PSD-rank for a given matrix
 ### heuristic_methods.py
 Contains all the implemented methods for PSD-factorization
 ## Usage
