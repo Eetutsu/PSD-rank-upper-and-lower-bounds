@@ -47,7 +47,8 @@ M = [
 # returns 3
 solve(M)
 
-# returns two lists of 3x3 matrices {A_1,..,A_4} and {B_1,...,B_5} which are the PSD-factors of matrix M
+# returns two lists of 3x3 matrices {A_1,..,A_4} and {B_1,...,B_5}
+# which are the PSD-factors of matrix M
 FPGPsd_facto(M) 
 ```
 
