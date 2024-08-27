@@ -27,7 +27,7 @@ Contains all the implemented upper bounds
 ### lower_bound.py
 Contains all the implemented lower bounds
 ### solve_PSD_rank.py
-Calculates the bound for PSD-rank for a given matrix
+Contains a function that calculates the upper- and lower bound for PSD-rank for a given matrix
 ### heuristic_methods.py
 Contains all the implemented methods for PSD-factorization
 ## Usage
@@ -47,7 +47,8 @@ M = [
 # returns 3
 solve(M)
 
-# returns two lists of 3x3 matrices {A_1,..,A_4} and {B_1,...,B_5} which are the PSD-factors of matrix M
+# returns two lists of 3x3 matrices {A_1,..,A_4} and {B_1,...,B_5}
+# which are the PSD-factors of matrix M
 FPGPsd_facto(M) 
 ```
 
