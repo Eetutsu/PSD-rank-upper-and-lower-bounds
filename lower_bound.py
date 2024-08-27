@@ -501,7 +501,7 @@ def newton_iter(M, q):
     # Check if hessian matrix is invertible
     try:
         ret = np.dot(np.linalg.inv(Hessian), grad_vec_min_B3(M, q))
-    except ZeroDivisionError:
+    except Exception:
         ret = 0
     return ret
 

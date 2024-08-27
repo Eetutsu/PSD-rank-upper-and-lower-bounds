@@ -1,7 +1,6 @@
 import numpy as np
-import test_matrices
 import picos as pic
-from summary import solve
+from solve_PSD_rank import solve
 
 
 def generate_A_B(M, dim):
@@ -59,8 +58,10 @@ def alternating_strategy(M, round_accuracy=10):
                 arr_B = optimize_subproblem(
                     arr_B, M.T, arr_A
                 )  # Optimize B matrice using A matrices
-            except ZeroDivisionError:
-                print("Division by zero")  # Picos sometimes divides by zero
+            except Exception as err:
+                print(
+                    f"Error {err} occurred"
+                )  # Picos sometimes divides by zero and fails optimization
                 break
         X = np.zeros((M.shape[0], M.shape[1]))  # Generate matrix from factors
         for i in range(len(arr_A)):
@@ -396,8 +397,3 @@ def unflatten(new_matrix, dim):
     ]  # Unflatten the matrices
 
     return original_matrices
-
-
-for matrix in test_matrices.matrices.keys():
-    alternating_strategy(test_matrices.matrices[matrix])
-    FPGPsd_facto(test_matrices.matrices[matrix])
