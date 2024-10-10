@@ -96,7 +96,7 @@ def B4(M, is_D=False):
         return 0
     else:  # Calculate lower bound
         sum = 0.0
-        maxes = [max(row) for row in M]
+        maxes = [max(row) for row in M.T]
         for i in maxes:
             sum += i
         return sum
