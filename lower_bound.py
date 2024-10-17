@@ -785,4 +785,4 @@ def calc_B5D(M, q, i, D):
     return summa2 / np.sqrt(summa1)
 
 
-l_bounds = [B1, B3_gradient, B3D_gradient, B3_newton, B4, B4D, B5, B5D]
+l_bounds = [B3_gradient, B3D_gradient, B3_newton, B4, B4D, B5, B5D]

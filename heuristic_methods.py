@@ -31,7 +31,7 @@ def generate_A_B(M, dim):
     return arr_A, arr_B
 
 
-def alternating_strategy(M, round_accuracy=10, print_terminal=True, print_file=False):
+def alternating_strategy(M, round_accuracy=10, print_terminal=True, print_file=False, ranks = 0, print_X = False):
     """
     Heuristic method for approximating a PSD-factorization for the matrix M
 
@@ -47,7 +47,12 @@ def alternating_strategy(M, round_accuracy=10, print_terminal=True, print_file=F
     print_terminal : bool
         determines wheter factors will be printed in terminal (default = True)
     print_file : bool
-        determines wheter factors will be printed in a file (default = False)
+        determines wheter factors will be printed in a file (default = False)¨
+    ranks : list
+        possible PSD-ranks can be given manually. If so PSD-rank will not be calculated (default = 0)
+    print_X : bool
+        if true doesn't print factors or eigenvalues (default = False)
+        
 
 
     Returns
@@ -55,9 +60,13 @@ def alternating_strategy(M, round_accuracy=10, print_terminal=True, print_file=F
     list
         two lists of matrices that make up the PSD factroization
     """
-
     M = np.array(M)
-    dim = solve(M, print_steps=2)  # All the possible PSD-ranks
+
+    if not ranks:
+        dim = solve(M, print_steps=2)  # All the possible PSD-ranks
+    else:
+        dim = ranks
+    
     for iter in range(len(dim)):  # Iterate for every possilbe PSD-rank
         arr_A, arr_B = generate_A_B(M, dim[iter])  # Intialize A and B matrices
         for i in range(100):
@@ -74,9 +83,9 @@ def alternating_strategy(M, round_accuracy=10, print_terminal=True, print_file=F
                 )  # Picos sometimes divides by zero and fails optimization
                 break
         if print_terminal:
-            print_factors(M, arr_A, arr_B, round_accuracy)
+            print_factors(M, arr_A, arr_B, round_accuracy, print_X, dim[iter])
         if print_file:
-            make_file(M, arr_A, arr_B, round_accuracy)
+            make_file(M, arr_A, arr_B, round_accuracy, print_X, dim[iter])
 
     return arr_A, arr_B
 
@@ -187,7 +196,7 @@ def generate_A_B_gradient(M, dim):
     return arr_A, arr_B
 
 
-def FPGPsd_facto(M, round_accuracy=10, print_terminal=True, print_file=False):
+def FPGPsd_facto(M, round_accuracy=10, print_terminal=True, print_file=False, ranks = 0, print_X = False):
     """
     PSD factorization according to algorithm found in:
     Algorithms for Positive Semidefinite Factorization https://arxiv.org/pdf/1707.07953
@@ -203,7 +212,10 @@ def FPGPsd_facto(M, round_accuracy=10, print_terminal=True, print_file=False):
         determines wheter factors will be printed in terminal (default = True)
     print_file : bool
         determines wheter factors will be printed in a file (default = False)
-
+    ranks : list
+        possible PSD-ranks can be given manually. If so PSD-rank will not be calculated (default = 0)
+    print_X : bool
+        if true doesn't print factors or eigenvalues (default = False)
 
     Returns
     -----------------------
@@ -211,9 +223,14 @@ def FPGPsd_facto(M, round_accuracy=10, print_terminal=True, print_file=False):
         two lists of matrices that make up the PSD factroization
     """
 
-    delta = 10
+
     M = np.array(M)
-    dim = solve(M, print_steps=2)  # All the possible PSD-ranks
+
+    if not ranks:
+        dim = solve(M, print_steps=2)  # All the possible PSD-ranks
+    else:
+        dim = ranks
+    delta = 10
     for iter in range(len(dim)):  # Iterate for every possilbe PSD-rank
         arr_A, arr_B = generate_A_B_gradient(M, dim[iter])  # Intialize A and B matrices
         A = flatten(arr_A)  # Each factor is  flattened into a cloumn
@@ -232,9 +249,9 @@ def FPGPsd_facto(M, round_accuracy=10, print_terminal=True, print_file=False):
         arr_A = unflatten(A, dim[iter])  # Each column is its own matrix
         arr_B = unflatten(B, dim[iter])
         if print_terminal:
-            print_factors(M, arr_A, arr_B, round_accuracy)
+            print_factors(M, arr_A, arr_B, round_accuracy, print_X, dim[iter])
         if print_file:
-            make_file(M, arr_A, arr_B, round_accuracy)
+            make_file(M, arr_A, arr_B, round_accuracy,print_X, dim[iter])
     return arr_A, arr_B
 
 
@@ -370,7 +387,7 @@ def unflatten(new_matrix, dim):
     return original_matrices
 
 
-def print_factors(M, arr_A, arr_B, round_accuracy):
+def print_factors(M, arr_A, arr_B, round_accuracy, print_X, dim):
     """
     Prints the factors that make up the PSD factorization to terminal
 
@@ -384,27 +401,35 @@ def print_factors(M, arr_A, arr_B, round_accuracy):
         list of B matrices
     round_accuracy
         accuracy of round
+    print_X : bool
+        if true doesn't print factors or eigenvalues
+    dim : list
+        list of possible PSD-ranks
     """
-
     X = np.zeros((M.shape[0], M.shape[1]))  # Calculate the matrix formed by the factros
     for i in range(len(arr_A)):
         for j in range(len(arr_B)):
             X[i, j] = np.trace(np.dot(arr_A[i], arr_B[j]))
-    print("A eigenvalues and matrices")  # Print factros from A and their eigenvalues
-    for mat in arr_A:
-        print("Matrix: ")
-        print(np.round(mat, round_accuracy))
-        print("And its eigenvalues:")
-        print(np.linalg.eigh(mat)[0])
-        print("\n")
-    print("B eigenvalues and matrices")  # Print factros from B and their eigenvalues
-    for mat in arr_B:
-        print("Matrix: ")
-        print(np.round(mat, round_accuracy))
-        print("And its eigenvalues:")
-        print(np.linalg.eigh(mat)[0])
-        print("\n")
+    if not print_X:
+        print("A eigenvalues and matrices")  # Print factros from A and their eigenvalues
+        for mat in arr_A:
+            print("Matrix: ")
+            print(np.round(mat, round_accuracy))
+            print("And its eigenvalues:")
+            print(np.linalg.eigh(mat)[0])
+            print("\n")
+        print("B eigenvalues and matrices")  # Print factros from B and their eigenvalues
+        for mat in arr_B:
+            print("Matrix: ")
+            print(np.round(mat, round_accuracy))
+            print("And its eigenvalues:")
+            print(np.linalg.eigh(mat)[0])
+            print("\n")
 
+
+
+
+    print(f"PSD-rank: {dim}")
     print("Original matrix M:")
     print(np.round(M, round_accuracy))
     print("New matrix X formed from factors: X_ij = Tr(A_iB_j)")
@@ -428,6 +453,10 @@ def make_file(M, arr_A, arr_B, round_accuracy):
         list of B matrices
     round_accuracy
         accuracy of round
+    print_X : bool
+        if true doesn't print factors or eigenvalues
+    dim : list
+        list of possible PSD-ranks
     """
     dim = len(arr_A[0])
     X = np.zeros((M.shape[0], M.shape[1]))  # Calculate the matrix formed by the factros
