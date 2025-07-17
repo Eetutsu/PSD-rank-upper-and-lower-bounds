@@ -1,6 +1,7 @@
 import lower_bound
 import upper_bound
 import math
+import numpy as np
 
 
 def solve(M, print_steps=0, print_rounded=True, eps=0.0000001):
@@ -55,6 +56,7 @@ def solve(M, print_steps=0, print_rounded=True, eps=0.0000001):
         for row in M:
             if print_rounded:
                 rounded_row = [round(x, 2) for x in row]
+                rounded_row = np.array(rounded_row).astype(float)
                 print(
                     rounded_row
                 )  # Print for which matrix psd-rank was found for with each element
@@ -68,7 +70,8 @@ def solve(M, print_steps=0, print_rounded=True, eps=0.0000001):
         )  # Print the bounds for psd-rank
         for row in M:
             if print_rounded:
-                rounded_row = [round(x, 2) for x in row]
+                rounded_row = [np.round(x, 2) for x in row]
+                rounded_row = np.array(rounded_row).astype(float)
                 print(
                     rounded_row
                 )  # Print for which matrix psd-rank was found for with each element
